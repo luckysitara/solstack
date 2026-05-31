@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+auth-keypair.json
+payer-keypair.json
+logs/lifecycle.json
+test_gemini.js
