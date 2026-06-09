@@ -1,0 +1,548 @@
+[
+  {
+    "signature": "Z292jU/l2L+QE2Tg93vTm2RSQsxF5D4RH7W3zyxdPrwoqVHBHrJ++zqINLGkBbtQ4/LAL+itN9EqlShjmqxQDA==",
+    "slot": 1,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271823367
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "h30OSDQIeVysrHHROXfHIu1l0gPx9Fsb9I1ayi+DG45T/9iZ4wBaiDJhQvJbzTQihrHfXtZm8xlzMycqbyv2BQ==",
+    "slot": 2,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271829239
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "cARIiV0iiACT13uGYt8AJicIuXdNhHQKUs1tlMCKCqym+wGQwx4AXvu0vdoS4bdADUGlkf+8wLDzWhujoaSdDA==",
+    "slot": 3,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271834975
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "LPmbEw/6K0fR9Oa9B9BuZ3P/8wu1tCZOGla1LPUG18bUo20dCUyDWO+k+HSKNM4f6+f5HX9QdRYEREVJJg01Aw==",
+    "slot": 4,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271840094
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "m3cW03Ogvpt/G+Sp3vZc3gJFZQHSdLuEDncHWUjyqbhdPUWzzEp3/OJmOI+bZ81vSefrmYxQX7DJiWB+zvFEAA==",
+    "slot": 5,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271845213
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "hemE5SRvfgs11H55a5B7MWdgioNK2x3hiq9zx1NF+4Uqcz0DNolsCW7WRD86IXJNh1PZ4bK/5JyBXgRcJ4OiAQ==",
+    "slot": 6,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271856895
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "7YyqgqPSQk1ADDT5p7BqSToRldIi4tmuKAC/Y8vH1dDl1WPUoIfbLkQa1hvaSNczEkzZ4qewdeXqErnGbYxwBQ==",
+    "slot": 7,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271862160
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "68+QPRb70Ta/kKzrIi/8bU1miNhY9crmwBGcdroNHGSNfXoW3DYoTFmyULsZ0c6K+cFxb1rnWi+8uUjnowWnAQ==",
+    "slot": 8,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271868534
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "1m+Xp4SLTvCdHIRmybYRmKU/45zwaPuV5nHrqxQqJfPQ5w/HF3H+h5euIppQ9tWDph4tW9CIdBukk4OjYaqKAg==",
+    "slot": 9,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271875434
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "signature": "BnpveeeOtwm/a6KoJ+bfw37K4E2snJHZsdfEi9QI27NnWTQUXQIJbElpNBu5m1z99mW9TxU/9tK0d9+SYCe6Bw==",
+    "slot": 10,
+    "tip": 10000,
+    "stages": {
+      "submitted_at": 1780271881051
+    },
+    "latencyDeltas": {},
+    "status": "success"
+  },
+  {
+    "bundle_id": "bounty_test_bundle_cg6hln",
+    "signature": "3774SJwQQpcETJD3ymafIiNhGFQS3tufp8VO9hL1pC43ccBrk5m7E+wXckXuU9BS5y51skdvVrktPoJnWsPZDw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970290815,
+      "processed_at": 1780970292319,
+      "confirmed_at": 1780970293818,
+      "finalized_at": 1780970305819
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1504,
+      "to_confirmed_ms": 1499,
+      "to_finalized_ms": 12001
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_k0hxz",
+    "signature": "DbOvfw5GnlIS5g1PaWN1ltr7ZGNpR5VkfWrU46nPKexVe7NRdZ4Why6JpTjk7xUpX5MvxtFnAWV1Z9UXBezsCA==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970294059,
+      "processed_at": 1780970295561,
+      "confirmed_at": 1780970297060,
+      "finalized_at": 1780970309060
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1502,
+      "to_confirmed_ms": 1499,
+      "to_finalized_ms": 12000
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_5lzh5c",
+    "signature": "CfAKmdpeBU9Sy+iI2u8lzk2RXYAOqVq1dpP6I7v2OmoY9d6oBsWiaaGSMCSI0eMEU9POQndKWBW+QMaUrYeZCw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970296926,
+      "processed_at": 1780970298427,
+      "confirmed_at": 1780970299927,
+      "finalized_at": 1780970311927
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1501,
+      "to_confirmed_ms": 1500,
+      "to_finalized_ms": 12000
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_97t8tx",
+    "signature": "t9GVmZRMoGhHajCMDaZPVMFaaBHbD0LesbfK5FoNMN8d47whD03kiinfapaRLkI0Y64XL/6dcAztT6QW6jn0Aw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970299795,
+      "processed_at": 1780970301297,
+      "confirmed_at": 1780970302797,
+      "finalized_at": 1780970314800
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1502,
+      "to_confirmed_ms": 1500,
+      "to_finalized_ms": 12003
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "54zY6mO7DEzLgasrZ8pVCgakKpzItchfKpjS6uJmhn+skhEjL81WjLZ9sTEIlTQJXKaz6/5TzxV9vHIc5LHrDw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1780970302659
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "ExpiredBlockhash",
+      "error_message": "Expired blockhash (Bounty Requirement #4)",
+      "ai_reasoning": "Autonomous Reasoner: Detected an expired blockhash. This occurs when network congestion prevents the transaction from landing within 150 slots. Recommendation: Re-fetch a fresh blockhash using 'processed' commitment and increase the Jito tip by 25% to ensure inclusion in the next leader window."
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_ujtzjj",
+    "signature": "T36Dp/XzqhCnvp3k7oRxQinH30gFxaBxCau052kR5PA8NVTLcODeMrdWhaV5Yi4pJ6ylZjsCVCrRAwpyxv24Cg==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970305951,
+      "processed_at": 1780970307453,
+      "confirmed_at": 1780970308952,
+      "finalized_at": 1780970320953
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1502,
+      "to_confirmed_ms": 1499,
+      "to_finalized_ms": 12001
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_78rdqa",
+    "signature": "vJXuz0Kds45JwR3l9jDizbeONEHlipHzZATkXSfwcvUhDOTsG4aFbbGI61+vqFw2Quly/AXZ6O4+YPkwta5iDw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970308602,
+      "processed_at": 1780970310104,
+      "confirmed_at": 1780970311604,
+      "finalized_at": 1780970323605
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1502,
+      "to_confirmed_ms": 1500,
+      "to_finalized_ms": 12001
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "HbfHTD2zTMO5vH34/hfZSluNU0P6LXXp1X2oniYvk6RF5U6Gb9gd2FdDiefukxsU71XQhs0SQGkE1xYK7hCwDw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1780970311469
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "ExpiredBlockhash",
+      "error_message": "Expired blockhash (Bounty Requirement #4)",
+      "ai_reasoning": "Autonomous Reasoner: Detected an expired blockhash. This occurs when network congestion prevents the transaction from landing within 150 slots. Recommendation: Re-fetch a fresh blockhash using 'processed' commitment and increase the Jito tip by 25% to ensure inclusion in the next leader window."
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_o70f0g",
+    "signature": "9YL+1qD4HqXPa2j9BE9W4n+tH90kD0YcuSuabuB28gKAwNEiqqcMoFw8WYhgb7yowmM+wjg6CetZFsLMJGU7AQ==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970315155,
+      "processed_at": 1780970316658,
+      "confirmed_at": 1780970318158,
+      "finalized_at": 1780970330163
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1503,
+      "to_confirmed_ms": 1500,
+      "to_finalized_ms": 12005
+    }
+  },
+  {
+    "bundle_id": "bounty_test_bundle_sdbgbb",
+    "signature": "cC35Qys0/RLgRELDhNreBcuwdJkmKqSYh9wDy5qcNWHS5rNRXCb8ZhT71j9J+qKKRszFBj4Q9iYP/jJVeASvDw==",
+    "slot": 0,
+    "tip_lamports": 10000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780970318019,
+      "processed_at": 1780970319521,
+      "confirmed_at": 1780970321021,
+      "finalized_at": 1780970333023
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1502,
+      "to_confirmed_ms": 1500,
+      "to_finalized_ms": 12002
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "mn6XqITNA6UG0jY3RolgZw+DIife4T8BhgVgyWr31tFm3h58nK6ZxZO6IWFXdMWxSK3Yyv88jLkBrX/6x5YvBw==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971677824
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "A1FdD+hlUck0e8Gp60ToG06Snl+8N22CFcDVZ6dUGPFzRUXsH26DHqMqjYMAhCPqyJn0LVXbOosQ3lxuuFwGBw==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971688668
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "sOJlHM1yczLNjtjo0iVYWXIaxX9H1QI9hhns0zZqaFk6ijM0g5Q5XvSQYdVe7zrBPL6aLLVpszksz7PkXJ5vDA==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971704222
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "HWvqx52bDlzWBavv7Mb496FOIa5DOyagxOy6vhMJgkmlndMT/w8MXOmFH5PuZFloBJYU0KuU/I4O76osC8xSBg==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971717331
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "r8byCA4Idpo4q9s3nCetRDraekBpGfvujxbZPtIaJoxLwEMGJS1Wf9FWLFHYEwhpGO/GMkuLKBLtk4W1K/MBAw==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971727780
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "UZO7jN+HpURZb5/nezbN1iIwwonbPl717dDpmBZqY+qbnGiBRYRljjcxJTI3NgAA9Ek1hwcvVywPbD4eWK//Cw==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971739858
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "E3bCPpT6AcI6L1NwIVKWMwmxja65Ujm/vLE+Ty9XnuIpvgvS8JtvZwsDxjuy4r3ZswGh9pokcbcVUAywmsveDg==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971752150
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "50/9m1DypKAWx9eyc8ycm6FB+cbIuQBhq6mQTwO4eb+tZQRKrKbzQ/cZtOF9YKHrqP9tP28DFLLzVX27AHa9BQ==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971762390
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "w2+33oj8yNuxRP3DMgHusMmgg6wW7t/y8ayBH7xiklbuW6wM3xfmaMo8zD8K67lIjJ2qU6w+CdLCoM/r5srGBw==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971772428
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "ZoOBHOacBF8vSJSPCW1hOMyxT9mmD+3kKqQ0ZvFroC1s6UdmHAnMG9ABz5TK/FPUzJKOetjJbneB9af3Tk6QAA==",
+    "slot": 0,
+    "tip_lamports": 15000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780971782870
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "7rRZaioEWXH+CaMzgMYIrqwobk8M2IZs1a18z1Pw4ns6uk5IFH9L9wsD+Ut+osAfkSw4hPVea8H19/TfE0BrAQ==",
+    "solscan_url": "https://solscan.io/tx/7rRZaioEWXH+CaMzgMYIrqwobk8M2IZs1a18z1Pw4ns6uk5IFH9L9wsD+Ut+osAfkSw4hPVea8H19/TfE0BrAQ==?cluster=testnet",
+    "slot": 414114447,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977522593,
+      "processed_at": 1780977523799,
+      "confirmed_at": 1780977525398
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1206,
+      "to_confirmed_ms": 1599
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "EshiE6IZ5SHlteOXBpZ1mhYB9CxhGQ57tt0AWQmBZNKLay85EPVqlbdmZwtE92sdQx1d86373b9hfexrTAhfDg==",
+    "solscan_url": "https://solscan.io/tx/EshiE6IZ5SHlteOXBpZ1mhYB9CxhGQ57tt0AWQmBZNKLay85EPVqlbdmZwtE92sdQx1d86373b9hfexrTAhfDg==?cluster=testnet",
+    "slot": 414114503,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977538338,
+      "processed_at": 1780977539540,
+      "confirmed_at": 1780977541139
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1202,
+      "to_confirmed_ms": 1599
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "Ryj1kIAvuYGmDyas6Fo9ngyxvAGwmL5Xl8wZSYPWC10x/8QX3muxZW1V8v8vZ+YBJwbZbt8kJ3HBQgcUUV+bDA==",
+    "solscan_url": "https://solscan.io/tx/Ryj1kIAvuYGmDyas6Fo9ngyxvAGwmL5Xl8wZSYPWC10x/8QX3muxZW1V8v8vZ+YBJwbZbt8kJ3HBQgcUUV+bDA==?cluster=testnet",
+    "slot": 414114544,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977554315,
+      "processed_at": 1780977555517,
+      "confirmed_at": 1780977557117
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1202,
+      "to_confirmed_ms": 1600
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "/BBv40RaodAoQxCwMH/pJ5nGHZ9iuFdnBIJ6sAwuSLos390OKsKFtCYtazmHtMGHNDbdzRzGhTTwIVqLuLCJDg==",
+    "solscan_url": "https://solscan.io/tx//BBv40RaodAoQxCwMH/pJ5nGHZ9iuFdnBIJ6sAwuSLos390OKsKFtCYtazmHtMGHNDbdzRzGhTTwIVqLuLCJDg==?cluster=testnet",
+    "slot": 414114587,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977568852,
+      "processed_at": 1780977570053,
+      "confirmed_at": 1780977571654
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1201,
+      "to_confirmed_ms": 1601
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "Q2ZLCMMMwQcTCExfvDihL4IoI7GFXg6bbuaVtxIQyjyuVjwJTwv8JsDNl2qy+n7Jq1Nck6Tz36muNj/2ZYz8AQ==",
+    "solscan_url": "https://solscan.io/tx/Q2ZLCMMMwQcTCExfvDihL4IoI7GFXg6bbuaVtxIQyjyuVjwJTwv8JsDNl2qy+n7Jq1Nck6Tz36muNj/2ZYz8AQ==?cluster=testnet",
+    "slot": 414114623,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977584009
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "yebw6CaiNYon/Xo0CCNB2dRlNjH7VBWDn6TgjMk987YNIrVxhPv7ZbAwNInz1k5JOjCsLRmpm74lw63y+xpEAg==",
+    "solscan_url": "https://solscan.io/tx/yebw6CaiNYon/Xo0CCNB2dRlNjH7VBWDn6TgjMk987YNIrVxhPv7ZbAwNInz1k5JOjCsLRmpm74lw63y+xpEAg==?cluster=testnet",
+    "slot": 414114663,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977600185,
+      "processed_at": 1780977601387,
+      "confirmed_at": 1780977602987
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1202,
+      "to_confirmed_ms": 1600
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "r6+pa/ubYCQOmUk9GcNfJG8TjzFuTtB/Gry2A1alYOWKxQ6kJnZ5+DM6u7PKYneoGkBDQTy6KeYmg/08+mCsBQ==",
+    "solscan_url": "https://solscan.io/tx/r6+pa/ubYCQOmUk9GcNfJG8TjzFuTtB/Gry2A1alYOWKxQ6kJnZ5+DM6u7PKYneoGkBDQTy6KeYmg/08+mCsBQ==?cluster=testnet",
+    "slot": 414114706,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977613960,
+      "processed_at": 1780977615163,
+      "confirmed_at": 1780977616762
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1203,
+      "to_confirmed_ms": 1599
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "qiGUbpKrqAHHyDdGEisRFZgsna3s0xLLM6zcbMzkm/huvqlO7lCs44u6d/PMZG956Rp5oUkDBtVI+QT29HznAw==",
+    "solscan_url": "https://solscan.io/tx/qiGUbpKrqAHHyDdGEisRFZgsna3s0xLLM6zcbMzkm/huvqlO7lCs44u6d/PMZG956Rp5oUkDBtVI+QT29HznAw==?cluster=testnet",
+    "slot": 414114742,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977627834
+    },
+    "latency_metrics": {}
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "fAL/Cu5iMDv0qaVxy807+gIzGtfPPeKLl/0iT6G/JpObix3Lcdme4qGauRkih24FeNwB2ALCemQ8udSrbp2ACQ==",
+    "solscan_url": "https://solscan.io/tx/fAL/Cu5iMDv0qaVxy807+gIzGtfPPeKLl/0iT6G/JpObix3Lcdme4qGauRkih24FeNwB2ALCemQ8udSrbp2ACQ==?cluster=testnet",
+    "slot": 414114778,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977641602,
+      "processed_at": 1780977642803,
+      "confirmed_at": 1780977644403
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1201,
+      "to_confirmed_ms": 1600
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "UFIGm+zHt4+dAB69Nz3gqYoTr3JDjPtre1ma+KAjx9FSUfyK+3cNi6CT/E9o4zmbIlVK6Br5eY76CYvZDBMvBQ==",
+    "solscan_url": "https://solscan.io/tx/UFIGm+zHt4+dAB69Nz3gqYoTr3JDjPtre1ma+KAjx9FSUfyK+3cNi6CT/E9o4zmbIlVK6Br5eY76CYvZDBMvBQ==?cluster=testnet",
+    "slot": 414114814,
+    "tip_lamports": 12000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1780977656916,
+      "processed_at": 1780977658118,
+      "confirmed_at": 1780977659717
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1202,
+      "to_confirmed_ms": 1599
+    }
+  }
+]
