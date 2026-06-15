@@ -544,5 +544,175 @@
       "to_processed_ms": 1202,
       "to_confirmed_ms": 1599
     }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "ZsWdog286cib5616KARsp2KPGm3Siuywzi66iK9qc21LMF5rDfuQhG4FPm9ZPwmyMceHD9rykwbxnT9TYDSfD3W",
+    "solscan_url": "https://solscan.io/tx/ZsWdog286cib5616KARsp2KPGm3Siuywzi66iK9qc21LMF5rDfuQhG4FPm9ZPwmyMceHD9rykwbxnT9TYDSfD3W?cluster=testnet",
+    "slot": 415408011,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781472954442
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "A5HDLoi2ArwQX7d4tMCBWyciTigJmQd96zjRoP8vqNXvzfeQ3YDfmUPh3Y1GFxqWPdyKRBEEwepgPTsrnnVS6bS",
+    "solscan_url": "https://solscan.io/tx/A5HDLoi2ArwQX7d4tMCBWyciTigJmQd96zjRoP8vqNXvzfeQ3YDfmUPh3Y1GFxqWPdyKRBEEwepgPTsrnnVS6bS?cluster=testnet",
+    "slot": 415408103,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781472988518
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "XQC68LrXzSzWD4MYF3HKLGkX5mf4vcmogqkG6c7XDF9YCohbkitxS2xecEp9WkFJiY647N6qMZisojw3cwxgXyT",
+    "solscan_url": "https://solscan.io/tx/XQC68LrXzSzWD4MYF3HKLGkX5mf4vcmogqkG6c7XDF9YCohbkitxS2xecEp9WkFJiY647N6qMZisojw3cwxgXyT?cluster=testnet",
+    "slot": 415408188,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473022290
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "4sXNmpd9wBmSC8eGHoaWgg6M5kbm9mBfUFbYdrVfQhs56SKkkYujvUFc1C47pVGtTaJWygyGfGud3wZiHXpmSCJN",
+    "solscan_url": "https://solscan.io/tx/4sXNmpd9wBmSC8eGHoaWgg6M5kbm9mBfUFbYdrVfQhs56SKkkYujvUFc1C47pVGtTaJWygyGfGud3wZiHXpmSCJN?cluster=testnet",
+    "slot": 415408268,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473040842
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "gX9AmP49V2dWoXtb7WgNRNYjetsrH646NHwCXygCUMS7xNXxFxD2qNSKgzrH8fNwHiE6nbnnwm16cg3rFgYfB75",
+    "solscan_url": "https://solscan.io/tx/gX9AmP49V2dWoXtb7WgNRNYjetsrH646NHwCXygCUMS7xNXxFxD2qNSKgzrH8fNwHiE6nbnnwm16cg3rFgYfB75?cluster=testnet",
+    "slot": 415408313,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473060322
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Expired blockhash (Fault Injection)",
+      "ai_reasoning": "Autonomous Analysis: Blockhash expired during propagation. The network consensus delta between 'processed' and 'confirmed' is too high. Recommendation: Refresh blockhash using 'processed' commitment and increase tip by 25%."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "5eZZBpZQdXR2rEf41LVPoFuGvKQua87bvi4kFR8dZZE1z1SnULEmDxxKo5ye7pYxFDYV4iTVWX48Mo24opfcK2LL",
+    "solscan_url": "https://solscan.io/tx/5eZZBpZQdXR2rEf41LVPoFuGvKQua87bvi4kFR8dZZE1z1SnULEmDxxKo5ye7pYxFDYV4iTVWX48Mo24opfcK2LL?cluster=testnet",
+    "slot": 415408351,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473076477
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "4vLd3E73ydHE8yQ8AwXWoZuWnYEoL1mhjWKQSq9Xiu7dJFvkVo4mT4c412r4pNsTUT2xehMXDqqJn2XQDekxSXiA",
+    "solscan_url": "https://solscan.io/tx/4vLd3E73ydHE8yQ8AwXWoZuWnYEoL1mhjWKQSq9Xiu7dJFvkVo4mT4c412r4pNsTUT2xehMXDqqJn2XQDekxSXiA?cluster=testnet",
+    "slot": 415408402,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473099268
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "3JeYcpYzVTi8smM9QcncM1BDgj32yNFVaxUE1xmpBC7u3ptCCmMHy3Yr76KHQNogUtT8fzDmD8zyc3ZaWepkvkpx",
+    "solscan_url": "https://solscan.io/tx/3JeYcpYzVTi8smM9QcncM1BDgj32yNFVaxUE1xmpBC7u3ptCCmMHy3Yr76KHQNogUtT8fzDmD8zyc3ZaWepkvkpx?cluster=testnet",
+    "slot": 415408462,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473118667
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "5APdMxtdKTMKadgZZxrS37nxh1VCom9MSWoVTxe5pe6tu52RQhGEcMUjyqHo4sRYtRjZpHGxy2zF3D4k3Ax26Rmx",
+    "solscan_url": "https://solscan.io/tx/5APdMxtdKTMKadgZZxrS37nxh1VCom9MSWoVTxe5pe6tu52RQhGEcMUjyqHo4sRYtRjZpHGxy2zF3D4k3Ax26Rmx?cluster=testnet",
+    "slot": 415408513,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473137763
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "3LcjSkkhgWMpYYEqacRhK4G5DDr94Nh4XMKdPjZPfvttxa2UMFostQ8UBt78mshaKrNHTM55jnwpHdjVnYGPrhtn",
+    "solscan_url": "https://solscan.io/tx/3LcjSkkhgWMpYYEqacRhK4G5DDr94Nh4XMKdPjZPfvttxa2UMFostQ8UBt78mshaKrNHTM55jnwpHdjVnYGPrhtn?cluster=testnet",
+    "slot": 415408562,
+    "tip_lamports": 12000,
+    "status": "failed",
+    "commitment_progression": {
+      "submitted_at": 1781473156174
+    },
+    "latency_metrics": {},
+    "failure_details": {
+      "classification": "BundleFailure",
+      "error_message": "Jito Timeout",
+      "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
+    }
   }
 ]
