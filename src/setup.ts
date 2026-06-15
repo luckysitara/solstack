@@ -2,12 +2,11 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
 
 async function main() {
   console.clear();
   console.log(chalk.cyan.bold("=================================================="));
-  console.log(chalk.cyan.bold("   SMART TRANSACTION STACK - INTERACTIVE SETUP   "));
+  console.log(chalk.cyan.bold("   PRISMA AI - TRANSACTION STACK SETUP   "));
   console.log(chalk.cyan.bold("==================================================\n"));
 
   const envPath = path.join(process.cwd(), ".env");
@@ -17,128 +16,103 @@ async function main() {
     const content = fs.readFileSync(envPath, "utf-8");
     content.split("\n").forEach((line) => {
       const parts = line.split("=");
-      if (parts.length >= 2) {
-        envConfig[parts[0].trim()] = parts.slice(1).join("=").trim();
-      }
+      if (parts.length >= 2) envConfig[parts[0].trim()] = parts.slice(1).join("=").trim();
     });
   }
 
-  // Check for automated testing mode
-  if (process.env.NON_INTERACTIVE === "true") {
-      console.log(chalk.blue("[CI] Running in non-interactive mode. Using environment defaults..."));
-      envConfig["AI_PROVIDER"] = process.env.TEST_AI_PROVIDER || "gemini";
-      envConfig["GEMINI_API_KEY"] = process.env.TEST_GEMINI_KEY || "";
-      envConfig["SOLINFRA_API_KEY"] = "";
-      envConfig["NETWORK"] = "testnet";
-      envConfig["BLOCK_ENGINE_URL"] = "ny.testnet.block-engine.jito.wtf";
-      envConfig["RPC_URL"] = "https://api.testnet.solana.com";
-      envConfig["GRPC_URL"] = "fra.grpc.solinfra.dev:443";
-      envConfig["SETUP_COMPLETE"] = "true";
-      envConfig["USE_LOCAL_AI"] = "true";
-      envConfig["LOCAL_MODEL_ID"] = "any";
-  } else {
-      // --- 1. AI CONFIGURATION ---
-      console.log(chalk.yellow.bold("[1/3] AI Agent Configuration"));
-      
-      const aiAnswers = await inquirer.prompt([
-        {
-          type: "rawlist", // Changed from 'list' for better compatibility
-          name: "provider",
-          message: "Choose your Primary AI Provider:",
-          choices: [
-            { name: "Gemini (Google)", value: "gemini" },
-            { name: "Claude (Anthropic)", value: "anthropic" },
-            { name: "OpenAI (GPT-4o)", value: "openai" },
-            { name: "DeepSeek", value: "deepseek" },
-            { name: "Grok (xAI)", value: "grok" },
-          ],
-          default: envConfig["AI_PROVIDER"] || "gemini",
-        },
-        {
-          type: "input", // Changed from 'password' to 'input' to see characters in some terminals
-          name: "apiKey",
-          message: (answers) => `Enter your ${answers.provider.toUpperCase()} API Key:`,
-          validate: (input) => input.length > 0 || "API Key is required.",
-        }
-      ]);
+  // --- 1. INFRASTRUCTURE ---
+  console.log(chalk.yellow.bold("[1/3] Infrastructure Configuration"));
+  const infraAnswers = await inquirer.prompt([
+    {
+      type: "input",
+      name: "solinfraKey",
+      message: "Enter SolInfra API Key (Required for high-perf RPC/gRPC):",
+      default: envConfig["SOLINFRA_API_KEY"] || "",
+      validate: (input) => input.length > 0 || "SolInfra Key is mandatory.",
+    },
+    {
+      type: "list",
+      name: "network",
+      message: "Target Solana Network:",
+      choices: ["testnet", "mainnet-beta", "devnet"],
+      default: envConfig["NETWORK"] || "testnet",
+    }
+  ]);
 
-      const keyVar = `${aiAnswers.provider.toUpperCase()}_API_KEY`;
-      envConfig["AI_PROVIDER"] = aiAnswers.provider;
-      envConfig[keyVar] = aiAnswers.apiKey;
+  envConfig["SOLINFRA_API_KEY"] = infraAnswers.solinfraKey;
+  envConfig["NETWORK"] = infraAnswers.network;
+  envConfig["RPC_URL"] = `https://fra.rpc.solinfra.dev/sol?api_key=${infraAnswers.solinfraKey}`;
+  envConfig["GRPC_URL"] = "fra.grpc.solinfra.dev:443";
+  envConfig["BLOCK_ENGINE_URL"] = infraAnswers.network === "testnet" ? "ny.testnet.block-engine.jito.wtf" : "ny.mainnet.block-engine.jito.wtf";
 
-      // --- 2. LOCAL FALLBACK ---
-      console.log(chalk.yellow.bold("\n[2/3] Local LLM Fallback (LM Studio)"));
-      
-      const fallbackAnswers = await inquirer.prompt([
-        {
-          type: "confirm",
-          name: "useLocal",
-          message: "Enable LM Studio as a redundant local fallback?",
-          default: envConfig["USE_LOCAL_AI"] === "true",
-        },
-        {
-          type: "input",
-          name: "localModel",
-          message: "Enter your loaded LM Studio model identifier:",
-          default: envConfig["LOCAL_MODEL_ID"] || "llama-3.2-3b-instruct",
-          when: (answers) => answers.useLocal,
-        }
-      ]);
+  // --- 2. AI CONFIGURATION ---
+  console.log(chalk.yellow.bold("\n[2/3] AI Agent Configuration"));
+  const aiChoices = [
+    { name: "Gemini (Google) - High Speed / Balanced", value: "gemini" },
+    { name: "Claude (Anthropic) - Precision / Best for failure analysis", value: "anthropic" },
+    { name: "OpenAI (GPT-4o) - Industry Standard", value: "openai" },
+    { name: "DeepSeek - Performance / Cost Efficiency", value: "deepseek" },
+    { name: "Grok (xAI) - Advanced Context", value: "grok" },
+    { name: "LM Studio (Local LLM) - Maximum Privacy / Zero Cost", value: "lmstudio" },
+  ];
 
-      envConfig["USE_LOCAL_AI"] = fallbackAnswers.useLocal ? "true" : "false";
-      if (fallbackAnswers.useLocal) {
-        envConfig["LOCAL_MODEL_ID"] = fallbackAnswers.localModel;
+  const aiType = await inquirer.prompt([
+    {
+      type: "list",
+      name: "provider",
+      message: "Select your Primary AI Provider:",
+      choices: aiChoices,
+      default: envConfig["AI_PROVIDER"] || "gemini",
+    }
+  ]);
+
+  envConfig["AI_PROVIDER"] = aiType.provider;
+
+  if (aiType.provider === "lmstudio") {
+    console.log(chalk.blue.bold("\n--- LM STUDIO INSTALLATION GUIDE ---"));
+    console.log("1. Download LM Studio from: " + chalk.underline("https://lmstudio.ai/"));
+    console.log("2. Open the app and download a model (e.g., Llama 3.2 3B).");
+    console.log("3. Click the '<->' icon on the left to open 'Local Server'.");
+    console.log("4. Click 'Start Server' on port 1234.");
+    console.log("------------------------------------\n");
+    
+    const localModel = await inquirer.prompt([
+      {
+        type: "input",
+        name: "id",
+        message: "Enter your loaded model identifier (or leave as 'any'):",
+        default: "any",
       }
-
-      // --- 3. INFRASTRUCTURE ---
-      console.log(chalk.yellow.bold("\n[3/3] Infrastructure Configuration"));
-      
-      const infraAnswers = await inquirer.prompt([
-        {
-          type: "input",
-          name: "solinfraKey",
-          message: "Enter SolInfra API Key:",
-          default: envConfig["SOLINFRA_API_KEY"] || "",
-        },
-        {
-          type: "rawlist",
-          name: "network",
-          message: "Target Solana Network:",
-          choices: ["testnet", "mainnet-beta"],
-          default: envConfig["NETWORK"] || "testnet",
-        },
-        {
-          type: "input",
-          name: "jitoUrl",
-          message: "Jito Block Engine URL:",
-          default: (answers: any) => 
-            answers.network === "testnet" 
-              ? "ny.testnet.block-engine.jito.wtf" 
-              : "ny.mainnet.block-engine.jito.wtf",
-        }
-      ]);
-
-      envConfig["SOLINFRA_API_KEY"] = infraAnswers.solinfraKey;
-      envConfig["NETWORK"] = infraAnswers.network;
-      envConfig["BLOCK_ENGINE_URL"] = infraAnswers.jitoUrl;
-      envConfig["RPC_URL"] = `https://fra.rpc.solinfra.dev/sol?api_key=${infraAnswers.solinfraKey}`;
-      envConfig["GRPC_URL"] = "fra.grpc.solinfra.dev:443";
-      envConfig["SETUP_COMPLETE"] = "true";
+    ]);
+    envConfig["LOCAL_MODEL_ID"] = localModel.id;
+  } else {
+    const keyName = `${aiType.provider.toUpperCase()}_API_KEY`;
+    const aiKey = await inquirer.prompt([
+      {
+        type: "input",
+        name: "key",
+        message: `Enter your ${aiType.provider.toUpperCase()} API Key:`,
+        default: envConfig[keyName] || "",
+        validate: (input) => input.length > 0 || "API Key is required for cloud providers.",
+      }
+    ]);
+    envConfig[keyName] = aiKey.key;
   }
 
-  // Save .env
-  const envContent = Object.entries(envConfig)
-    .map(([k, v]) => `${k}=${v}`)
-    .join("\n");
+  // --- 3. FINALIZATION ---
+  envConfig["SETUP_COMPLETE"] = "true";
+  const envContent = Object.entries(envConfig).map(([k, v]) => `${k}=${v}`).join("\n");
   fs.writeFileSync(envPath, envContent);
 
   console.log(chalk.green.bold("\n=================================================="));
-  console.log(chalk.green.bold("   SETUP SUCCESSFUL! Project is ready.           "));
+  console.log(chalk.green.bold("   CONFIGURATION COMPLETE!   "));
   console.log(chalk.green.bold("=================================================="));
-  console.log(`\nRun the stack: ${chalk.bold("npm start")}`);
+  console.log(`\nNetwork:      ${chalk.cyan(envConfig["NETWORK"])}`);
+  console.log(`AI Provider:  ${chalk.cyan(envConfig["AI_PROVIDER"].toUpperCase())}`);
+  console.log(`\nNext: Fund your wallets and run: ${chalk.bold("npm start")}`);
 }
 
 main().catch((err) => {
-  console.error(chalk.red("\n[Fatal Error] Setup failed:"), err.message);
+  console.error(chalk.red("\n[Error]"), err.message);
   process.exit(1);
 });

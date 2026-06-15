@@ -32,17 +32,17 @@ export class TransactionStack {
     instructions: any[],
     tipAmountLamports: number,
     tipAccount: PublicKey
-  ): Promise<{ bundle: Bundle; signature: string }> {
+  ): Promise<{ bundle: Bundle; signature: string; tx: VersionedTransaction }> {
     const { blockhash } = await this.connection.getLatestBlockhash("processed");
     const bundleInstructions = [...instructions];
     if (tipAmountLamports > 0) {
-        bundleInstructions.push(
-          SystemProgram.transfer({
-            fromPubkey: this.payer.publicKey,
-            toPubkey: tipAccount,
-            lamports: tipAmountLamports,
-          })
-        );
+      bundleInstructions.push(
+        SystemProgram.transfer({
+          fromPubkey: this.payer.publicKey,
+          toPubkey: tipAccount,
+          lamports: tipAmountLamports,
+        })
+      );
     }
     const messageV0 = new TransactionMessage({
       payerKey: this.payer.publicKey,
@@ -53,23 +53,18 @@ export class TransactionStack {
     tx.sign([this.payer]);
     const signature = bs58.encode(tx.signatures[0]);
     const bundle = new Bundle([tx], 5);
-    return { bundle, signature };
+    return { bundle, signature, tx };
   }
 
   async sendBundle(bundle: Bundle): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error("Jito Timeout")), 3000);
-        try {
-            const s = searcherClient(this.blockEngineUrl, this.authKeypair);
-            const result: any = await s.sendBundle(bundle);
-            clearTimeout(timeout);
-            if (result.ok) resolve(result.value);
-            else reject(new Error(result.error || "Jito Error"));
-        } catch (e: any) {
-            clearTimeout(timeout);
-            reject(new Error(e.message));
-        }
-    });
+    try {
+        const s = searcherClient(this.blockEngineUrl, this.authKeypair);
+        const result: any = await s.sendBundle(bundle);
+        if (result.ok) return result.value;
+        throw new Error(result.error || "Jito Reject");
+    } catch (e: any) {
+        throw e;
+    }
   }
 
   async getTipAccounts(): Promise<PublicKey[]> {
