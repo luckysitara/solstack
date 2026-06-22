@@ -34,6 +34,23 @@ export interface LifecycleEntry {
   };
 }
 
+export function classifyFailure(errorMessage: string): FailureClassification {
+  const err = errorMessage.toLowerCase();
+  if (err.includes("blockhash") || err.includes("expired") || err.includes("blockhash not found")) {
+    return "ExpiredBlockhash";
+  }
+  if (err.includes("fee too low") || err.includes("insufficient funds") || err.includes("tx fee") || err.includes("lamports")) {
+    return "FeeTooLow";
+  }
+  if (err.includes("compute budget") || err.includes("exceeded") || err.includes("compute limit")) {
+    return "ComputeExceeded";
+  }
+  if (err.includes("timeout") || err.includes("bundle") || err.includes("auction lost") || err.includes("discarded")) {
+    return "BundleFailure";
+  }
+  return "Other";
+}
+
 export class LifecycleTracker {
   private logs: LifecycleEntry[] = [];
   private logPath: string;
@@ -86,6 +103,39 @@ export class LifecycleTracker {
       } else if (stage === "finalized_at" && entry.commitment_progression.confirmed_at) {
         entry.latency_metrics.to_finalized_ms = now - entry.commitment_progression.confirmed_at;
       }
+      this.save();
+    }
+  }
+
+  updateStageWithSlot(signature: string, stage: keyof LifecycleEntry["commitment_progression"], actualSlot: number) {
+    const entry = this.logs.find((l) => l.signature === signature || l.bundle_id === signature);
+    if (entry) {
+      entry.slot = actualSlot;
+      const now = Date.now();
+      (entry.commitment_progression as any)[stage] = now;
+      if (stage === "processed_at") {
+        entry.latency_metrics.to_processed_ms = now - entry.commitment_progression.submitted_at;
+      }
+      this.save();
+    }
+  }
+
+  updateStageBySlot(slot: number, stage: keyof LifecycleEntry["commitment_progression"]) {
+    const entries = this.logs.filter((l) => l.slot === slot && l.status === "success");
+    const now = Date.now();
+    let updated = false;
+    for (const entry of entries) {
+      if (!(entry.commitment_progression as any)[stage]) {
+        (entry.commitment_progression as any)[stage] = now;
+        if (stage === "confirmed_at" && entry.commitment_progression.processed_at) {
+          entry.latency_metrics.to_confirmed_ms = now - entry.commitment_progression.processed_at;
+        } else if (stage === "finalized_at" && entry.commitment_progression.confirmed_at) {
+          entry.latency_metrics.to_finalized_ms = now - entry.commitment_progression.confirmed_at;
+        }
+        updated = true;
+      }
+    }
+    if (updated) {
       this.save();
     }
   }

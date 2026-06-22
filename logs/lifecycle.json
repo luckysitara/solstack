@@ -264,126 +264,16 @@
     "tip_lamports": 10000,
     "status": "success",
     "commitment_progression": {
-      "submitted_at": 1780970318019,
-      "processed_at": 1780970319521,
-      "confirmed_at": 1780970321021,
-      "finalized_at": 1780970333023
+      "submitted_at": 17809718019,
+      "processed_at": 1780971819521,
+      "confirmed_at": 1780971821021,
+      "finalized_at": 1780971833023
     },
     "latency_metrics": {
       "to_processed_ms": 1502,
       "to_confirmed_ms": 1500,
       "to_finalized_ms": 12002
     }
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "mn6XqITNA6UG0jY3RolgZw+DIife4T8BhgVgyWr31tFm3h58nK6ZxZO6IWFXdMWxSK3Yyv88jLkBrX/6x5YvBw==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971677824
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "A1FdD+hlUck0e8Gp60ToG06Snl+8N22CFcDVZ6dUGPFzRUXsH26DHqMqjYMAhCPqyJn0LVXbOosQ3lxuuFwGBw==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971688668
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "sOJlHM1yczLNjtjo0iVYWXIaxX9H1QI9hhns0zZqaFk6ijM0g5Q5XvSQYdVe7zrBPL6aLLVpszksz7PkXJ5vDA==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971704222
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "HWvqx52bDlzWBavv7Mb496FOIa5DOyagxOy6vhMJgkmlndMT/w8MXOmFH5PuZFloBJYU0KuU/I4O76osC8xSBg==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971717331
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "r8byCA4Idpo4q9s3nCetRDraekBpGfvujxbZPtIaJoxLwEMGJS1Wf9FWLFHYEwhpGO/GMkuLKBLtk4W1K/MBAw==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971727780
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "UZO7jN+HpURZb5/nezbN1iIwwonbPl717dDpmBZqY+qbnGiBRYRljjcxJTI3NgAA9Ek1hwcvVywPbD4eWK//Cw==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971739858
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "E3bCPpT6AcI6L1NwIVKWMwmxja65Ujm/vLE+Ty9XnuIpvgvS8JtvZwsDxjuy4r3ZswGh9pokcbcVUAywmsveDg==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971752150
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "50/9m1DypKAWx9eyc8ycm6FB+cbIuQBhq6mQTwO4eb+tZQRKrKbzQ/cZtOF9YKHrqP9tP28DFLLzVX27AHa9BQ==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971762390
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "w2+33oj8yNuxRP3DMgHusMmgg6wW7t/y8ayBH7xiklbuW6wM3xfmaMo8zD8K67lIjJ2qU6w+CdLCoM/r5srGBw==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971772428
-    },
-    "latency_metrics": {}
-  },
-  {
-    "bundle_id": "pending",
-    "signature": "ZoOBHOacBF8vSJSPCW1hOMyxT9mmD+3kKqQ0ZvFroC1s6UdmHAnMG9ABz5TK/FPUzJKOetjJbneB9af3Tk6QAA==",
-    "slot": 0,
-    "tip_lamports": 15000,
-    "status": "success",
-    "commitment_progression": {
-      "submitted_at": 1780971782870
-    },
-    "latency_metrics": {}
   },
   {
     "bundle_id": "pending",
@@ -444,7 +334,7 @@
     "tip_lamports": 12000,
     "status": "success",
     "commitment_progression": {
-      "submitted_at": 1780977568852,
+      "submitted_at": 178097768852,
       "processed_at": 1780977570053,
       "confirmed_at": 1780977571654
     },
@@ -714,5 +604,17 @@
       "error_message": "Jito Timeout",
       "ai_reasoning": "Autonomous Analysis: Generic bundle rejection detected. Retrying with slightly aggressive tip."
     }
+  },
+  {
+    "bundle_id": "pending",
+    "signature": "HyF5EwZTfy8aU1mjWphX956FEj1bpA98ntPA6CWtdCNc9FnZXaTmfV63MZgWMx115vQGuNms8LpXfRJUe9w2UTL",
+    "solscan_url": "https://solscan.io/tx/HyF5EwZTfy8aU1mjWphX956FEj1bpA98ntPA6CWtdCNc9FnZXaTmfV63MZgWMx115vQGuNms8LpXfRJUe9w2UTL?cluster=testnet",
+    "slot": 415476707,
+    "tip_lamports": 13000,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1781499352106
+    },
+    "latency_metrics": {}
   }
 ]

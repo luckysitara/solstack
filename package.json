@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "npx ts-node src/setup.ts",
-    "start": "npx ts-node src/index.ts",
+    "start": "tsc && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

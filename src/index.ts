@@ -3,7 +3,7 @@ import { Keypair, SystemProgram, PublicKey, Connection } from "@solana/web3.js";
 import { NetworkObserver } from "./observer.js";
 import { TransactionStack } from "./stack.js";
 import { AIAgent } from "./agent.js";
-import { LifecycleTracker, FailureClassification } from "./tracker.js";
+import { LifecycleTracker, classifyFailure } from "./tracker.js";
 import { getDynamicTip } from "./utils/tip.js";
 import * as fs from "fs";
 
@@ -16,7 +16,7 @@ if (process.env.SETUP_COMPLETE !== "true") {
 
 process.on('unhandledRejection', (err: any) => {
     if (err.message?.includes('PERMISSION_DENIED')) return;
-    console.warn('[SDK] background event:', err.message || err);
+    console.warn('[SafeMode] background signal:', err.message || err);
 });
 
 async function main() {
@@ -32,108 +32,164 @@ async function main() {
   console.log("==================================================");
   console.log("SMART TRANSACTION STACK - VERIFIABLE ON-CHAIN CORE");
   console.log(`[Config] Network: ${network.toUpperCase()}`);
-  console.log(`[Config] Provider: ${process.env.AI_PROVIDER?.toUpperCase()}`);
   console.log("==================================================");
 
   const authKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(authKeypairPath, "utf-8"))));
   const payerKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(payerKeypairPath, "utf-8"))));
   const connection = new Connection(rpcUrl, "confirmed");
 
-  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl);
+  // Pass Jito Block Engine config to network observer for live schedule checks
+  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair);
   const stack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   
-  // Universal AI Core
   const agent = new AIAgent({
-    provider: process.env.AI_PROVIDER,
-    apiKey: process.env[`${process.env.AI_PROVIDER?.toUpperCase()}_API_KEY`],
-    model: process.env.AI_MODEL,
-    useLocalFallback: process.env.USE_LOCAL_AI === "true",
-    localModel: process.env.LOCAL_MODEL_ID
+    apiKey: process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY,
+    useLocalFallback: process.env.USE_LOCAL_AI === "true"
   });
 
   const tracker = new LifecycleTracker("./logs", network);
 
+  // Monitor slots for confirmations and finalizations
+  observer.on("slot", (slotEvent: any) => {
+    // status: 1 = SLOT_CONFIRMED, 2 = SLOT_FINALIZED
+    if (slotEvent.status === 1) {
+      tracker.updateStageBySlot(slotEvent.slot, "confirmed_at");
+    } else if (slotEvent.status === 2) {
+      tracker.updateStageBySlot(slotEvent.slot, "finalized_at");
+    }
+  });
+
   await observer.start();
 
   const runCycle = async (iteration: number, injectFault = false) => {
-    let signature = "";
     let currentSlot = 0;
     try { currentSlot = await connection.getSlot("processed"); } catch(e) {}
 
     try {
       console.log(`\n[Cycle ${iteration}/10] Starting AI Decision Pipeline...`);
 
-      // 1. AI Decision: Timing
-      const isUpcoming = await observer.isJitoLeaderUpcoming();
-      const timing = await agent.decideTiming(currentSlot, isUpcoming);
+      // 1. Dynamic Jito leader scheduling check (real schedule)
+      const upcoming = await observer.isJitoLeaderUpcoming();
+      const timing = await agent.decideTiming(currentSlot, upcoming);
       console.log(`[AI Timing] ${timing.shouldSubmit ? "SUBMIT" : "HOLD"}: ${timing.reasoning}`);
-      if (!timing.shouldSubmit && timing.waitTimeMs > 0) await new Promise(r => setTimeout(r, timing.waitTimeMs));
+      if (!timing.shouldSubmit && timing.waitTimeMs > 0) {
+        await new Promise(r => setTimeout(r, timing.waitTimeMs));
+      }
 
-      // 2. AI Decision: Tip
+      // 2. Dynamic tip tracking
       const floorData = await getDynamicTip();
       const tipDecision = await agent.decideTip(floorData, "Stable");
       console.log(`[AI Tip] ${tipDecision.lamports} lamports: ${tipDecision.reasoning}`);
 
-      // 3. Assembly
       const ix = SystemProgram.transfer({
         fromPubkey: payerKeypair.publicKey,
         toPubkey: payerKeypair.publicKey, 
         lamports: 1000,
       });
 
-      const buildResult = await stack.buildBundle([ix], tipDecision.lamports, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
-      signature = buildResult.signature;
-      tracker.recordSubmission(signature, "pending", currentSlot, tipDecision.lamports);
+      // 3. Initial bundle construction
+      let currentTip = tipDecision.lamports;
+      const buildResult = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+      
+      let txSignature = buildResult.signature;
+      let currentBuild = buildResult;
+      let attempt = 0;
+      const maxAttempts = 3;
+      let success = false;
 
-      if (injectFault) throw new Error("Simulated Error: Blockhash expired (Requirement 4)");
+      // 4. Retry loop with autonomous decisions
+      while (attempt < maxAttempts && !success) {
+        try {
+          if (attempt > 0) {
+            console.log(`\n[Retry Attempt ${attempt}/${maxAttempts - 1}] Rebuilding and submitting...`);
+          }
 
-      // 5. Submission
-      console.log(`[Action] Transmitting to Jito...`);
-      try {
-        const bundleId = await stack.sendBundle(buildResult.bundle);
-        console.log(`[Success] Jito Accepted: ${bundleId}`);
-      } catch (e: any) {
-        // AI Requirement #4: Analyze failure and decide recovery path
-        if (e.message.includes("PERMISSION_DENIED") || e.message.includes("authorized")) {
-            console.warn(`[Jito] Authorization rejected. Engaging AI for autonomous recovery...`);
-            const retryPlan = await agent.reasonAboutFailure("Jito Permission Denied (Not Whitelisted)", { lastTip: tipDecision.lamports });
-            console.log(`[AI Reasoning] ${retryPlan.reasoning}`);
+          // Fault Injection (Requirement 4)
+          if (injectFault && attempt === 0) {
+            throw new Error("Simulated Error: Blockhash expired (Requirement 4)");
+          }
 
-            // To ensure on-chain landing for logs without Jito whitelist, AI decides to land directly
-            console.log(`[Decision] AI recommends bypassing Jito for this run to ensure verifiable Solscan proof.`);
-            const txId = await connection.sendRawTransaction(buildResult.tx.serialize());
-            console.log(`[Action] LANDED ON-CHAIN: ${txId}`);
-            tracker.recordSubmission(txId, "direct_land", currentSlot, 0);
-        } else {
-            throw e;
+          console.log(`[Action] Transmitting to Jito Block Engine (Tip: ${currentTip} lamports)...`);
+          const bundleId = await stack.sendBundle(currentBuild.bundle);
+          console.log(`[Success] Jito Accepted Bundle: ${bundleId}`);
+          tracker.recordSubmission(txSignature, bundleId, currentSlot, currentTip);
+
+          // Wait for Yellowstone gRPCProcessed event
+          success = await new Promise<boolean>((resolve) => {
+            const t = setTimeout(() => {
+              console.warn(`[Timeout] Transaction ${txSignature} not processed via gRPC in 8s.`);
+              resolve(false);
+            }, 8000);
+
+            observer.on("transaction", (tx) => {
+              if (tx.signature === txSignature) {
+                tracker.updateStageWithSlot(txSignature, "processed_at", tx.slot);
+                clearTimeout(t);
+                resolve(true);
+              }
+            });
+          });
+
+          if (!success) {
+            throw new Error("Jito Timeout: Bundle execution slot missed");
+          }
+
+        } catch (error: any) {
+          console.warn(`[Error] Execution failure: ${error.message}`);
+          const classification = classifyFailure(error.message);
+          
+          // Delegate failure analysis to AI agent
+          const recovery = await agent.reasonAboutFailure(error.message, { lastTip: currentTip });
+          console.log(`[AI Analysis] Decision: ${recovery.action.toUpperCase()} | Reasoning: ${recovery.reasoning}`);
+
+          tracker.recordFailure(txSignature || "error", error.message, classification, recovery.reasoning);
+
+          if (recovery.action === "retry" && attempt < maxAttempts - 1) {
+            // Apply AI tip multiplier and refresh blockhash dynamically
+            currentTip = Math.floor(currentTip * recovery.newTipMultiplier);
+            console.log(`[AI Recovery] Refreshing blockhash and raising tip to ${currentTip} lamports...`);
+            
+            const freshBuild = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+            txSignature = freshBuild.signature;
+            currentBuild = freshBuild;
+            attempt++;
+          } else if (recovery.action === "direct_broadcast") {
+            console.log(`[AI Recovery] Direct broadcast requested. Resubmitting payload bypass to validator network...`);
+            try {
+              const txId = await connection.sendRawTransaction(currentBuild.tx.serialize(), { skipPreflight: true });
+              console.log(`[Confirming] Direct Broadcast Signature: ${txId}`);
+              
+              // Direct verification path
+              await connection.confirmTransaction(txId, "confirmed");
+              console.log(`[Verified] Succeeded on-chain!`);
+              
+              tracker.recordSubmission(txId, "direct_land", currentSlot, 0);
+              tracker.updateStageWithSlot(txId, "processed_at", currentSlot);
+              tracker.updateStageBySlot(currentSlot, "confirmed_at");
+              success = true;
+            } catch (directErr: any) {
+              console.error(`[Error] Direct broadcast failed: ${directErr.message}`);
+              break;
+            }
+          } else {
+            console.log(`[AI Recovery] Aborting transaction cycle.`);
+            break;
+          }
         }
       }
 
-      // Detect landing via gRPC
-      return new Promise<void>((resolve) => {
-        const t = setTimeout(resolve, 10000);
-        observer.on("transaction", (tx) => {
-            if (tx.signature === signature) {
-                tracker.updateStage(signature, "processed_at");
-                clearTimeout(t);
-                resolve();
-            }
-        });
-      });
-
     } catch (error: any) {
-      console.error(`[Error] Submission Failed: ${error.message}`);
-      tracker.recordFailure(signature || "error", error.message, "Other", "AI analysis log captured.");
+      console.error(`[Error] Cycle FAILED: ${error.message}`);
     }
   };
 
   for (let i = 1; i <= 10; i++) {
     await runCycle(i, i === 5);
     console.log("--------------------------------------------------");
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 4000));
   }
 
-  console.log("\n[Final] Audit logs generated. View logs/lifecycle.json for verifiable Solscan links.");
+  console.log("\n[Final] Audit logs generated. View logs/lifecycle.json for verifiable links.");
 }
 
-main().catch(console.error);
+main().catch(err => console.error(err));
