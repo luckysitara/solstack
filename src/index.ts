@@ -43,8 +43,10 @@ async function main() {
   const stack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   
   const agent = new AIAgent({
+    provider: process.env.AI_PROVIDER || "lmstudio",
     apiKey: process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY,
-    useLocalFallback: process.env.USE_LOCAL_AI === "true"
+    baseUrl: process.env.AI_URL,
+    modelName: process.env.AI_MODEL
   });
 
   const tracker = new LifecycleTracker("./logs", network);
@@ -190,6 +192,7 @@ async function main() {
   }
 
   console.log("\n[Final] Audit logs generated. View logs/lifecycle.json for verifiable links.");
+  process.exit(0);
 }
 
 main().catch(err => console.error(err));

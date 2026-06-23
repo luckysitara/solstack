@@ -27,6 +27,7 @@ export class NetworkObserver extends EventEmitter {
   private isConnecting = false;
   private retryCount = 0;
   private maxRetries = 10;
+  public isStopped = false;
 
   constructor(
     grpcUrl: string,
@@ -36,7 +37,7 @@ export class NetworkObserver extends EventEmitter {
     authKeypair?: Keypair
   ) {
     super();
-    this.client = new Client(grpcUrl, apiKey, undefined);
+    this.client = new Client(grpcUrl, apiKey || undefined, undefined);
     this.connection = new Connection(rpcUrl, "processed");
     if (blockEngineUrl && authKeypair) {
       this.searcherClientInstance = searcherClient(blockEngineUrl, authKeypair);
@@ -44,11 +45,22 @@ export class NetworkObserver extends EventEmitter {
   }
 
   async start() {
+    this.isStopped = false;
     await this.connectWithRetry();
   }
 
+  async stop() {
+    this.isStopped = true;
+    if (this.stream) {
+      try {
+        this.stream.destroy();
+      } catch (e) {}
+      this.stream = null;
+    }
+  }
+
   private async connectWithRetry() {
-    if (this.isConnecting) return;
+    if (this.isConnecting || this.isStopped) return;
     this.isConnecting = true;
 
     const request: SubscribeRequest = {
@@ -63,13 +75,20 @@ export class NetworkObserver extends EventEmitter {
       accountsDataSlice: [],
     };
 
-    while (this.retryCount < this.maxRetries) {
+    while (this.retryCount < this.maxRetries && !this.isStopped) {
       try {
         console.log(`[Observer] Connecting to Yellowstone gRPC (Attempt ${this.retryCount + 1}/${this.maxRetries})...`);
         await this.client.connect();
+        
+        if (this.isStopped) {
+          try { this.client.disconnect(); } catch (e) {}
+          break;
+        }
+
         this.stream = await this.client.subscribe();
 
         this.stream.on("data", (data: any) => {
+          if (this.isStopped) return;
           if (data.slot) {
             const slotUpdate = data.slot;
             const slotNum = parseInt(slotUpdate.slot, 10);
@@ -98,21 +117,25 @@ export class NetworkObserver extends EventEmitter {
         });
 
         this.stream.on("error", (error: any) => {
+          if (this.isStopped) return;
           console.error("[Observer] Stream error:", error);
           this.handleDisconnect();
         });
 
         this.stream.on("end", () => {
+          if (this.isStopped) return;
           console.warn("[Observer] Stream ended by server.");
           this.handleDisconnect();
         });
 
         this.stream.on("close", () => {
+          if (this.isStopped) return;
           console.warn("[Observer] Stream closed.");
           this.handleDisconnect();
         });
 
         await new Promise<void>((resolve, reject) => {
+          if (this.isStopped) return reject(new Error("Observer stopped during subscription handshake"));
           this.stream.write(request, (err: any) => {
             if (err) reject(err);
             else resolve();
@@ -128,29 +151,39 @@ export class NetworkObserver extends EventEmitter {
         this.retryCount++;
         const delay = Math.min(1000 * Math.pow(2, this.retryCount), 30000);
         console.log(`[Observer] Retrying in ${delay}ms...`);
+        
+        if (this.isStopped) break;
         await new Promise((r) => setTimeout(r, delay));
       }
     }
     this.isConnecting = false;
-    console.error("[Observer] Max reconnection retries reached. Stream offline.");
+    if (!this.isStopped) {
+      console.error("[Observer] Max reconnection retries reached. Stream offline.");
+    }
   }
 
   private handleDisconnect() {
+    if (this.isStopped) return;
     if (this.stream) {
       try {
         this.stream.destroy();
       } catch (e) {}
       this.stream = null;
     }
-    setTimeout(() => this.connectWithRetry(), 2000);
+    setTimeout(() => {
+      if (!this.isStopped) this.connectWithRetry();
+    }, 2000);
   }
 
   async isJitoLeaderUpcoming(windowSlots: number = 4): Promise<boolean> {
-    if (!this.searcherClientInstance) {
-      return true; // Fallback to true if not configured
+    if (!this.searcherClientInstance || this.isStopped) {
+      return true; // Fallback to true if not configured or stopped
     }
     try {
-      const nextLeaderResult = await this.searcherClientInstance.getNextScheduledLeader();
+      const getLeaderPromise = this.searcherClientInstance.getNextScheduledLeader();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Jito schedule timeout")), 2000));
+      const nextLeaderResult = await Promise.race([getLeaderPromise, timeoutPromise]) as any;
+
       if (nextLeaderResult.ok) {
         const val = nextLeaderResult.value;
         const diff = val.nextLeaderSlot - val.currentSlot;
@@ -161,6 +194,7 @@ export class NetworkObserver extends EventEmitter {
       }
       return true; // Fallback on failed ok result
     } catch (e) {
+      console.log(`[Jito Schedule] Offline/Timeout (Using default fallback timing)`);
       return true; // Default fallback
     }
   }

@@ -59,7 +59,9 @@ export class TransactionStack {
   async sendBundle(bundle: Bundle): Promise<string> {
     try {
         const s = searcherClient(this.blockEngineUrl, this.authKeypair);
-        const result: any = await s.sendBundle(bundle);
+        const sendPromise = s.sendBundle(bundle);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Jito sendBundle timeout")), 3000));
+        const result: any = await Promise.race([sendPromise, timeoutPromise]) as any;
         if (result.ok) return result.value;
         throw new Error(result.error || "Jito Reject");
     } catch (e: any) {

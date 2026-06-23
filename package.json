@@ -6,6 +6,10 @@
   "scripts": {
     "setup": "npx ts-node src/setup.ts",
     "start": "tsc && node dist/index.js",
+    "cli": "tsc && node dist/index.js",
+    "api": "tsc && node dist/api.js",
+    "interactive": "tsc && node dist/interactive.js",
+    "dashboard": "npm run dev --prefix dashboard",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +19,7 @@
   "devDependencies": {
     "@types/axios": "^0.9.36",
     "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.6",
     "@types/inquirer": "^9.0.9",
     "@types/node": "^25.9.1",
     "lms": "^0.0.21",
@@ -34,6 +39,7 @@
     "bs58": "^6.0.0",
     "chalk": "^5.6.2",
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "inquirer": "^14.0.2",
     "jito-ts": "^4.2.1",
     "lmstudio": "^0.0.32",

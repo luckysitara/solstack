@@ -1,60 +1,64 @@
-# PrismaAI: Advanced Transaction Infrastructure Specification
+# PrismaAI: Smart Transaction Infrastructure Specification
 
 ## 1. Executive Summary & Design Philosophy
-The PrismaAI Transaction Stack is a high-frequency, production-grade orchestrator built for the Solana network. Standard DApps rely on slow HTTP RPC polling and non-deterministic transaction inclusion. This stack replaces legacy infrastructure with a sub-millisecond gRPC data pipeline (Triton Yellowstone via SolInfra), atomic bundle submission (Jito Block Engine), and an autonomous, multi-provider AI Cognitive Engine for intelligent error recovery. The primary design philosophy is **Deterministic Execution**: minimizing MEV leakage, eliminating transaction-fee drain from failed smart-contract executions, and responding to network jitter autonomously without human intervention.
+Standard Solana DApps rely on HTTP RPC polling (`getSignatureStatuses` or `getTransaction`) which introduces a significant latency penalty (~400-800ms) and suffers from severe rate-limiting under high network congestion. Furthermore, broadcasting transactions blindly leads to capital waste due to paid network fees for failed smart-contract executions (e.g., failed arbitrage, liquidations, or slipped trades).
+
+The **PrismaAI Transaction Stack** is a production-grade transaction orchestrator designed to achieve **Deterministic Execution** on the Solana blockchain. It replaces legacy RPC polling with a sub-millisecond gRPC data pipeline (Triton Yellowstone via SolInfra or PublicNode), achieves atomic transaction execution via Jito Block Engine bundles, and utilizes an autonomous, multi-provider **AI Cognitive Engine** to handle operational exceptions, adjust tip multipliers, and manage failover pathways.
 
 ---
 
 ## 2. System Architecture & Topology
 
-### 2.1 Macro System Architecture (Mermaid)
-*(Copy into [Mermaid Live Editor](https://mermaid.live/))*
+### 2.1 Macro System Architecture (Mermaid Diagram)
+The diagram below illustrates the relationship between external RPC/gRPC resources and the internal components of the PrismaAI stack.
 
 ```mermaid
 graph TD
-    subgraph "External Blockchain Infrastructure"
+    subgraph "External Solana Infrastructure"
         direction TB
-        grpc_node["SolInfra RPC Node<br/>(Yellowstone Geyser Plugin)"]
-        jito_be["Jito Block Engine<br/>(Regional: NY/FRA/TKY)"]
-        ai_cloud["Cloud AI APIs<br/>(Gemini/OpenAI)"]
+        grpc_node["gRPC Geyser Node<br/>(Triton Geyser Plugin)"]
+        jito_be["Jito Block Engine<br/>(Regional Searcher Endpoint)"]
+        rpc_node["Solana RPC Endpoint<br/>(Devnet/Testnet/Mainnet)"]
+        ai_cloud["Cloud AI APIs<br/>(Gemini/OpenAI/Claude)"]
     end
 
     subgraph "PrismaAI: Smart Transaction Stack"
         direction TB
         subgraph "Observation Layer"
             observer["Network Observer<br/>(gRPC Client)"]
-            tracker["Lifecycle State Machine<br/>(Memory Store)"]
+            tracker["Lifecycle State Machine<br/>(Memory & logs/lifecycle.json)"]
         end
         
         subgraph "Execution Layer"
-            tip_oracle["Dynamic Tip Oracle<br/>(REST API)"]
+            tip_oracle["Dynamic Tip Oracle<br/>(REST API Client)"]
             tx_manager["Transaction Manager<br/>(Bundle Assembler)"]
         end
         
         subgraph "Intelligence Layer"
             ai_agent["AI Cognitive Engine<br/>(Multi-Provider Factory)"]
-            local_llm["Local Inference<br/>(LM Studio CLI/Headless)"]
+            local_llm["Local Inference<br/>(LM Studio / Ollama)"]
         end
     end
 
     %% Data Pipeline
-    grpc_node -- "Multiplexed Stream<br/>(Blocks, Slots, Txs)" --> observer
-    observer -- "Event: Inclusion Detected" --> tracker
+    grpc_node -- "Multiplexed Stream<br/>(Slots & Transactions)" --> observer
+    observer -- "Event: Slot/Transaction Detected" --> tracker
     
     %% Execution Flow
-    tip_oracle -- "Polls 50th/95th %ile" --> tx_manager
-    tx_manager -- "Constructs VersionedTx" --> tx_manager
+    tip_oracle -- "Polls Low-Latency Floor" --> tx_manager
+    tx_manager -- "Constructs VersionedTx & signs" --> tx_manager
     tx_manager -- "Submits Atomic Bundle" --> jito_be
     tx_manager -- "Registers Intent" --> tracker
 
     %% Recovery Flow
-    jito_be -. "Rejection (Auction Lost/Expired)" .-> tx_manager
+    jito_be -. "Rejection (Auction Lost/Timeout)" .-> tx_manager
     tx_manager -- "Exception Data" --> ai_agent
-    ai_agent -- "Delegates Prompt" --> ai_cloud
-    ai_agent -- "Fallback/Local Prompt" --> local_llm
+    ai_agent -- "Cloud API Call" --> ai_cloud
+    ai_agent -- "Local HTTP request" --> local_llm
     ai_cloud -- "JSON Retry Plan" --> ai_agent
     local_llm -- "JSON Retry Plan" --> ai_agent
-    ai_agent -- "Executes Recovery" --> tx_manager
+    ai_agent -- "Executes Recovery Action" --> tx_manager
+    tx_manager -- "Bypasses Jito" --> rpc_node
 ```
 
 ---
@@ -62,72 +66,114 @@ graph TD
 ## 3. Subsystem Deep Dives
 
 ### 3.1 Sub-millisecond Data Pipeline (Network Observer)
-Standard Solana applications poll standard HTTP endpoints (`getSignatureStatuses`). This incurs a ~400-800ms penalty and is rate-limited. 
-*   **The Yellowstone Advantage:** Our Network Observer establishes a persistent, multiplexed HTTP/2 socket using Triton's Yellowstone gRPC protocol. It streams data directly from a validator's Geyser plugin. 
-*   **Implementation Mechanics:** We subscribe to `CommitmentLevel.PROCESSED`. The moment a leader executes the transaction and generates a shred, it is pushed to our observer. This allows the stack to detect landing intra-block, before full cluster consensus is reached.
+Rather than polling standard HTTP RPC endpoints which are subject to severe latency jitter, the **[NetworkObserver](file:///home/rootkit/solstack/src/observer.ts#L22)** connects directly to the Geyser plugin of a validator via a secure Yellowstone gRPC stream.
+*   **Multiplexed Subscriptions**: The observer subscribes to slot updates and transaction events at the `PROCESSED` commitment level. This means that as soon as the validator includes a transaction in a block (intra-slot), the block is streamed to our observer before full network consensus is reached.
+*   **Robust Connection Resilience**: The connection implementation features backpressure-aware event emitters and an automatic reconnection loop with exponential backoff and a maximum retry cap of 10.
+*   **Jito Leader Schedule Tracking**: Before submitting bundles, the observer queries the Jito Block Engine scheduler (`getNextScheduledLeader`) to check if a Jito validator is slated to win blockspace in the next few slots. If no Jito validator is scheduled, the system can hold or fallback to ensure optimal landing rates.
 
 ### 3.2 Atomic Execution (Jito Transaction Manager)
-A naive approach to high-frequency trading involves broadcasting transactions blindly. This results in paid network fees for failed smart contract executions (e.g., slipped trades).
-*   **Bundle Atomicity:** We construct Solana `VersionedTransaction` instances that include user instructions alongside a `SystemProgram.transfer` to a verified Jito tip account. 
-*   **The Auction:** The `Transaction Manager` wraps these transactions into a Jito `Bundle`. The bundle is submitted via the `searcherClient` to the Block Engine. If our tip wins the auction for the current slot, the entire bundle lands atomically. If it loses, or if the user instructions fail in simulation, the bundle is dropped entirely. *No tip is paid, and no network fee is drained.*
+The **[TransactionStack](file:///home/rootkit/solstack/src/stack.ts#L13)** packages user instructions alongside a direct fee transfer (tip) to Jito's regional tip accounts.
+*   **Bundle Atomicity**: Jito bundles are executed atomically. If the user instructions fail (e.g. slippage checks fail), the entire bundle is discarded by the Block Engine. **Crucially, this prevents tip payment and gas fee loss on failed executions.**
+*   **Dynamic Jito Floor Pricing**: The **[getDynamicTip](file:///home/rootkit/solstack/src/utils/tip.ts#L16)** helper queries the Jito API tip explorer endpoint (`https://bundles.jito.wtf/api/v1/bundles/tip_floor`) to fetch the latest 50th, 75th, and 95th percentile tips. This avoids hardcoding tip values, securing transaction landing while avoiding capital waste during quiet market phases.
 
-### 3.3 Dynamic Tip Oracle
-Hardcoding tips (e.g., fixed at 0.0001 SOL) is dangerous. During quiet periods, it wastes capital. During NFT mints or high MEV volatility, it guarantees failure.
-*   **Mechanism:** The `Dynamic Tip Oracle` queries the `https://bundles.jito.wtf/api/v1/bundles/tip_floor` low-latency endpoint before every submission.
-*   **Logic:** It extracts the `landed_tips_50th_percentile` to ensure competitive, but cost-effective, auction participation. 
+### 3.3 The AI Cognitive Engine & Operational Reasoning
+The **[AIAgent](file:///home/rootkit/solstack/src/agent.ts#L390)** is the brain of the transaction stack. It is responsible for three critical operational decisions:
+1.  **Tip Estimation**: Balancing landing probability against tip costs under varying network states.
+2.  **Timing Decisions**: Holding or transmitting transactions based on leader schedules.
+3.  **Failure Analysis & Autonomous Recovery**: Triage of exceptions to execute automated retry procedures.
 
----
-
-## 4. Lifecycle Tracking & State Machine
-
-The `Lifecycle State Machine` is a rigorous in-memory store that audits the exact millisecond of state transitions. 
-
-| Lifecycle State | Trigger Event | Technical Meaning |
-| :--- | :--- | :--- |
-| `SUBMITTED` | Local System Clock | The exact millisecond the payload leaves our node via `searcherClient.sendBundle`. |
-| `PROCESSED` | gRPC Transaction Stream | A validator has included the transaction in a block. We calculate `Processed Delta = processed_at - submitted_at`. |
-| `CONFIRMED` | gRPC or RPC Polling | 66%+ of the network stake has voted on the block. We calculate `Consensus Delta = confirmed_at - processed_at`. |
-| `FINALIZED` | (Optional) Maximum lock | Over 31 slots have passed. Reorganization is cryptographically impossible. |
-
-**Bounty Requirement Insight:** The delta between `processed_at` and `confirmed_at` acts as a **Network Health Oracle**. A high delta (e.g., > 3000ms) indicates cluster instability, high fork rates, or severe validator vote lag. Our stack monitors this to adjust submission timing.
+To ensure 100% reliability, the engine utilizes a dynamic, unmocked failover chain:
+1.  **Cloud Providers (Gemini / Claude / DeepSeek / OpenAI)**: Automatically builds client instances for any configured cloud AI backends depending on available environment API keys (e.g. `gemini-2.0-flash`, `claude-3-5-sonnet`, `deepseek-chat`, or `gpt-4o-mini`).
+2.  **Local Backends (LM Studio / Ollama)**: Configures fallbacks to local endpoints (`http://localhost:1234` for LM Studio and `http://localhost:11434` for Ollama) to run local models (e.g. `glm-4.7-flash` or `llama3`).
+3.  **Strict Failover Strategy**: If a provider fails, the stack transitions sequentially to the next candidate in the chain. No hardcoded or heuristic fallbacks are used; if all configured LLMs are unreachable or fail, the execution will abort cleanly.
 
 ---
 
-## 5. AI Cognitive Framework & Autonomous Recovery
+## 4. UI Dashboard Subsystems
 
-The AI Cognitive Engine is not a simple script; it is a **deterministic reasoning factory** capable of evaluating Solana infrastructure faults.
+The PrismaAI stack supports two user interfaces, allowing operators to monitor the transaction pipeline in different environments:
 
-### 5.1 Multi-Provider Factory
-To ensure 100% uptime, the engine utilizes a fallback architecture:
-1.  **Primary (Cloud):** Google Gemini 1.5 Flash (via `@google/generative-ai`) for high-speed, structured JSON reasoning.
-2.  **Secondary (Local/Headless):** LM Studio (`@lmstudio/sdk`). If the cloud provider rate-limits (429 Too Many Requests), the stack autonomously fails over to a local LLaMA/Mistral model running on the host machine. The system programmatically discovers local models via `client.system.listDownloadedModels` and loads them into VRAM with maximum GPU offload (`gpu: { ratio: "max" }`).
-3.  **Tertiary (Hardcoded Autonomous Fallback):** If no local server is available, a built-in deterministic reasoner handles the exception to prevent crash loops.
+### 4.1 Interactive CLI Dashboard (Mode 1)
+The Interactive CLI is a terminal interface developed with `inquirer` and `chalk`. It implements a live event loop that:
+1. **Polls the Yellowstone Geyser Stream**: Subscribes to the observer's slot and transaction emitters.
+2. **Displays Live Slots & Jito Alerts**: Real-time status indicators alert the operator if a Jito validator leader is upcoming in the next few slots.
+3. **Manual Cycle Trigger**: Allows users to dynamically input transfer parameters, choose the AI provider, and run complete execution loops while displaying live timing, tipping, and retry/broadcast pathways.
 
-### 5.2 The Prompt Engineering & Cognitive Loop
-When an exception is caught, the AI is fed a highly structured prompt containing the exact error message and the surrounding context map (Current Tip, Congestion Level, Slot).
+### 4.2 React Web Application Dashboard (Mode 2)
+The React dashboard is a premium web client with a dark glassmorphic design system:
+* **Connection Indicators**: Visual pills displaying current health and connection status for the Express API server and the gRPC Geyser client.
+* **Cognitive Stepper**: A step-by-step pipeline visualizing the transaction progression:
+  1. **AI Timing Decision**: Checks Jito validator schedule and schedules optimal delay slots.
+  2. **AI Tipping Optimizer**: Computes tipping strategy based on congestion and Jito floors.
+  3. **Jito Bundling**: Packs instructions and Jito block engine tips, builds the transaction, and executes the signed bundle.
+  4. **Yellowstone Landing Stream**: Direct gRPC block signature verification to audit transaction landing within milliseconds.
+* **Audit Ledger Cards**: Displays the reverse-chronological transaction log fetched from `/api/v1/transactions`, including slots, tips paid, landing latencies, and triage reports for failed bundles.
 
-**Example AI Reasoning Output:**
-```json
-{
-  "action": "retry",
-  "reasoning": "Detected 'Expired blockhash'. This occurs when network congestion prevents the transaction from landing within 150 slots. Recommendation: Re-fetch a fresh blockhash using 'processed' commitment and increase the Jito tip by 25% to ensure inclusion in the next leader window.",
-  "newTipMultiplier": 1.25,
-  "refreshBlockhash": true
-}
+---
+
+## 5. End-to-End Transaction Flow Data Map
+
+The list below outlines the step-by-step progression of a transaction through the stack:
+
+```
+[React Web App / Interactive CLI]
+               │
+               ▼  1. Submit transaction details (destination, amount)
+  [Express API / CLI Controller]
+               │
+               ▼  2. Check Jito leader schedules via Jito Searcher Client
+  [AI Timing Decision]
+               │  - Result: shouldSubmit (true/false) & waitTimeMs
+               ▼
+  [AI Tip Optimizer]
+               │  - Result: tip in lamports (based on dynamic Jito floor & congestion)
+               ▼
+  [Bundle Assembly]
+               │  - Assembles instruction + Jito tip transfer payload
+               │  - Fetches fresh blockhash & signs transaction bundle
+               ▼
+  [Jito Block Engine submission]
+               │
+      ┌────────┴────────┐
+      ▼ (Success)       ▼ (Failure / Timeout)
+[Yellowstone gRPC]   [AI Triage & Exception Recovery]
+      │                 │
+      │                 ├─► Retry: increase tip, refresh blockhash, resubmit
+      │                 ├─► Direct Broadcast: bypass Jito, broadcast to RPC
+      │                 └─► Abort: end cycle
+      ▼
+[On-Chain Landing]
+      │
+      ▼  3. Stream signatures via gRPC Geyser client
+[Lifecycle Tracker]
+      │  - Write audit metrics to logs/lifecycle.json
+      ▼
+[React UI Updates]
 ```
 
-### 5.3 Failure Classification Strategy
-The AI categorizes failures to apply the correct mitigation:
-*   **Expired Blockhash:** (Critical fault) Indicates extreme latency between blockhash fetching and network ingestion. **Mitigation:** Refresh blockhash immediately. (Never use `finalized` blockhashes, as they are ~31 slots old upon arrival).
-*   **Auction Lost (Bundle Dropped):** The tip was uncompetitive for the specific leader's blockspace. **Mitigation:** Retain current blockhash (if within 150 slots), drastically increase tip multiplier (`1.5x`), and resubmit.
-*   **Leader Skipped:** The designated Jito leader went offline or missed their slot. **Mitigation:** Bundle silently drops. Re-assemble and target the next Jito leader in the schedule.
+---
+
+## 6. Lifecycle Tracking & State Machine
+The **[LifecycleTracker](file:///home/rootkit/solstack/src/tracker.ts#L54)** acts as the stack's audit ledger, tracking timestamps and deltas:
+*   `Processed Delta = processed_at - submitted_at`: Tracks the time from transmission to block inclusion.
+*   `Consensus Delta = confirmed_at - processed_at`: Measures cluster consensus stability. High deltas suggest network congestion or high fork rates.
+*   All entries are logged to [logs/lifecycle.json](file:///home/rootkit/solstack/logs/lifecycle.json) with dynamically appended Solscan links corresponding to the target network.
 
 ---
 
-## 6. Infrastructure Specifications
+## 7. Failure Triage & Recovery Strategy
+When an error is caught during execution, the AI categorizes the exception:
 
-To replicate this environment in a production setting:
-*   **OS:** Ubuntu 22.04 LTS (Recommended for headless LM Studio Daemon).
-*   **Compute:** NVIDIA GPU (RTX 3090 / 4090) if running local LLM inference. Otherwise, standard high-clock CPU instance.
-*   **Networking:** Co-location with SolInfra's Frankfurt (FRA) nodes is highly recommended for sub 20ms latency to the gRPC endpoint.
-*   **Environment Variables:** Strict separation of `.env` configuration ensures `AUTH_KEYPAIR` (Jito Block Engine auth) and `PAYER_KEYPAIR` (Treasury) are never hardcoded.
+| Error Classification | Root Cause | AI Action | Recovery Mechanism |
+| :--- | :--- | :--- | :--- |
+| **ExpiredBlockhash** | Slot latency exceeded 150 slots | `RETRY` | Refreshes the blockhash using `processed` commitment, increases the Jito tip by 25% to gain auction priority, and resubmits. |
+| **FeeTooLow** | Under-bid Jito tips | `RETRY` | Recalculates the tip floor, applies a `1.5x` tip multiplier, and rebundles. |
+| **Jito Timeout / Connection Fail** | Jito Block Engine is offline or gRPC socket blocks | `DIRECT_BROADCAST` | Bypasses Jito, signs transaction directly, and broadcasts to standard RPC validators to ensure on-chain landing. |
+| **ComputeExceeded** | Smart-contract execution exceeded transaction compute budget | `ABORT` | Aborts transaction cycle to prevent fee drain. |
+
+---
+
+## 8. Custom Node Support & gRPC Independence
+The stack is fully decoupled from any single node service provider.
+* **Triton/Custom Node Support**: Standard `@triton-one/yellowstone-grpc` is used for client creation. If the host endpoint uses a different authentication schema (such as authorization headers inside URL parameters or custom TLS certificates), the gRPC client resolves it dynamically.
+* **Flexible Authentication**: If an API key is not required (e.g. standard local gRPC or open community gateways), passing empty credentials initializes standard connection pipelines without throwing exception errors.
