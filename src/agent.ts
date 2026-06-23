@@ -137,7 +137,9 @@ Respond with JSON matching this schema:
 
   async reasonAboutFailure(error: string, context: any): Promise<RetryPlan> {
     const prompt = `Analyze transaction execution failure. Error message: "${error}", Context: ${JSON.stringify(context)}.
-Determine if we should retry, abort, wait, or bypass Jito and broadcast directly to RPC ("direct_broadcast"). Specify a new tip multiplier (e.g. 1.2 to 2.0) and whether to refresh the blockhash. Provide reasoning.
+Determine if we should retry, abort, wait, or bypass Jito and broadcast directly to RPC ("direct_broadcast").
+CRITICAL recovery instruction: If the error message indicates a timeout, Jito Timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to land the transaction immediately via standard RPC.
+Specify a new tip multiplier (e.g. 1.2 to 2.0) and whether to refresh the blockhash. Provide reasoning.
 Respond with JSON matching this schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
@@ -218,6 +220,7 @@ Output JSON schema:
   async reasonAboutFailure(error: string, context: any) {
     const prompt = `Analyze transaction execution failure. Error: "${error}", Context: ${JSON.stringify(context)}.
 Decide action ("retry" | "abort" | "wait" | "direct_broadcast"), newTipMultiplier, refreshBlockhash, and write reasoning.
+CRITICAL recovery instruction: If the error indicates a timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to bypass Jito and land the transaction immediately via standard RPC.
 Output JSON schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
@@ -289,6 +292,7 @@ Output JSON schema:
   async reasonAboutFailure(error: string, context: any) {
     const prompt = `Analyze transaction execution failure. Error: "${error}", Context: ${JSON.stringify(context)}.
 Decide recovery plan action, newTipMultiplier, refreshBlockhash, and reasoning.
+CRITICAL recovery instruction: If the error indicates a timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to bypass Jito and land the transaction immediately via standard RPC.
 Output JSON schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
@@ -387,6 +391,7 @@ Your output must be ONLY a valid JSON object matching this schema:
   async reasonAboutFailure(error: string, context: any) {
     const prompt = `Analyze Solana transaction failure. Error: "${error}", Context: ${JSON.stringify(context)}.
 Determine recovery action ("retry" | "abort" | "wait" | "direct_broadcast"), newTipMultiplier (float), and refreshBlockhash (boolean).
+CRITICAL recovery instruction: If the error indicates a timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to bypass Jito and land the transaction immediately via standard RPC.
 Your output must be ONLY a valid JSON object matching this schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
@@ -460,6 +465,7 @@ Your output must be ONLY a valid JSON object matching this schema:
   async reasonAboutFailure(error: string, context: any) {
     const prompt = `Analyze Solana transaction failure. Error: "${error}", Context: ${JSON.stringify(context)}.
 Determine recovery action ("retry" | "abort" | "wait" | "direct_broadcast"), newTipMultiplier (float), and refreshBlockhash (boolean).
+CRITICAL recovery instruction: If the error indicates a timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to bypass Jito and land the transaction immediately via standard RPC.
 Your output must be ONLY a valid JSON object matching this schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
@@ -531,6 +537,7 @@ Output JSON schema:
   async reasonAboutFailure(error: string, context: any) {
     const prompt = `Analyze transaction execution failure. Error: "${error}", Context: ${JSON.stringify(context)}.
 Decide action ("retry" | "abort" | "wait" | "direct_broadcast"), newTipMultiplier, refreshBlockhash, and reasoning.
+CRITICAL recovery instruction: If the error indicates a timeout, connection failure, or 'Jito sendBundle timeout', recommend "direct_broadcast" to bypass Jito and land the transaction immediately via standard RPC.
 Output JSON schema:
 {
   "action": "retry" | "abort" | "wait" | "direct_broadcast",
