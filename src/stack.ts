@@ -31,9 +31,10 @@ export class TransactionStack {
   async buildBundle(
     instructions: any[],
     tipAmountLamports: number,
-    tipAccount: PublicKey
+    tipAccount: PublicKey,
+    recentBlockhash?: string
   ): Promise<{ bundle: Bundle; signature: string; tx: VersionedTransaction }> {
-    const { blockhash } = await this.connection.getLatestBlockhash("processed");
+    const blockhash = recentBlockhash || (await this.connection.getLatestBlockhash("processed")).blockhash;
     const bundleInstructions = [...instructions];
     if (tipAmountLamports > 0) {
       bundleInstructions.push(
@@ -70,6 +71,21 @@ export class TransactionStack {
   }
 
   async getTipAccounts(): Promise<PublicKey[]> {
+    try {
+      const s = searcherClient(this.blockEngineUrl, this.authKeypair);
+      const getTipPromise = s.getTipAccounts();
+      const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Jito getTipAccounts timeout")), 3000));
+      const res: any = await Promise.race([getTipPromise, timeoutPromise]) as any;
+      if (res.ok && res.value && res.value.length > 0) {
+        return res.value.map((a: string) => new PublicKey(a));
+      }
+    } catch (e: any) {
+      console.warn(`[TransactionStack] Failed to fetch Jito tip accounts dynamically (${e.message || e}), using network fallback.`);
+    }
+    // Network-based fallback
+    if (this.blockEngineUrl.includes("testnet") || this.blockEngineUrl.includes("devnet")) {
+      return [new PublicKey("3AVipGwXnHY5Z2m48A2qS2dD3B6x4jYNhR467W5q86y5")];
+    }
     return [new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY")];
   }
 }

@@ -956,5 +956,243 @@
       "to_processed_ms": 0,
       "to_confirmed_ms": 2
     }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "3fQ51Rs89oHZ3j6Qb1HfLcHCrkz6WLGyRXT9jd42zs3MfYhQakcRaDJeHBUqCdo4AvzW8MY2Xns3Q425YtmwxevV",
+    "solscan_url": "https://solscan.io/tx/3fQ51Rs89oHZ3j6Qb1HfLcHCrkz6WLGyRXT9jd42zs3MfYhQakcRaDJeHBUqCdo4AvzW8MY2Xns3Q425YtmwxevV?cluster=testnet",
+    "slot": 0,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268470509,
+      "processed_at": 1782268470510,
+      "confirmed_at": 1782268470513
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 3
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "2nKHUn2be8BKHpy4czBoc6ADaRmsSYeqUg5Fm6j6sBWvJtqYn79MRuob7fidv3cG3r6a79msyK3B4gSCa76MojW1",
+    "solscan_url": "https://solscan.io/tx/2nKHUn2be8BKHpy4czBoc6ADaRmsSYeqUg5Fm6j6sBWvJtqYn79MRuob7fidv3cG3r6a79msyK3B4gSCa76MojW1?cluster=testnet",
+    "slot": 417380258,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268491634,
+      "processed_at": 1782268491635,
+      "confirmed_at": 1782268491639
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 4
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "Myg94h6zApBBeUCqQw48cDAyY7xSz8jeUfQVFxNU44kUTjFcrmiTjB7Fuc7eGwFoKh4PEEZyEyFXygLCtcQCvQH",
+    "solscan_url": "https://solscan.io/tx/Myg94h6zApBBeUCqQw48cDAyY7xSz8jeUfQVFxNU44kUTjFcrmiTjB7Fuc7eGwFoKh4PEEZyEyFXygLCtcQCvQH?cluster=testnet",
+    "slot": 0,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268534246,
+      "processed_at": 1782268534246,
+      "confirmed_at": 1782268534247
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "62TZMK6r6VpA1937djh5LjwKZjeiwfisUsKwGeqQ4tQVBbBEYv6MzfwRD6Uw1eEySJUVMYby4NRzww4wYwbhufba",
+    "solscan_url": "https://solscan.io/tx/62TZMK6r6VpA1937djh5LjwKZjeiwfisUsKwGeqQ4tQVBbBEYv6MzfwRD6Uw1eEySJUVMYby4NRzww4wYwbhufba?cluster=testnet",
+    "slot": 417380425,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268558178,
+      "processed_at": 1782268558178,
+      "confirmed_at": 1782268558179
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "kxWAaYb672MhSqz3wrTYBzMoVdVJBusyVwNWaVSLiDzva82krBpwwNjqPDiNa6TxYRHY9x1k6UWj1HFw43bx734",
+    "solscan_url": "https://solscan.io/tx/kxWAaYb672MhSqz3wrTYBzMoVdVJBusyVwNWaVSLiDzva82krBpwwNjqPDiNa6TxYRHY9x1k6UWj1HFw43bx734?cluster=testnet",
+    "slot": 417380481,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268578003,
+      "processed_at": 1782268578004,
+      "confirmed_at": 1782268578004
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 0
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "462Ca4Zx4BdUGfBg7Nbs4FMgrCYxHafqs2aLJ1eD9yLn45uyGjeetTPWuEkg9x535kP5brYtQctjF6P3JoE41Y2Z",
+    "solscan_url": "https://solscan.io/tx/462Ca4Zx4BdUGfBg7Nbs4FMgrCYxHafqs2aLJ1eD9yLn45uyGjeetTPWuEkg9x535kP5brYtQctjF6P3JoE41Y2Z?cluster=testnet",
+    "slot": 417380534,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268599324,
+      "processed_at": 1782268599325,
+      "confirmed_at": 1782268599326
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "4VXJrL84Q5b4EJCeNxw5PVgYHyyq3RtchVYikq42tiAbfcaLvpun2QxWsbZAfGz6U9coQTraEfFxYq85z14Dg1bU",
+    "solscan_url": "https://solscan.io/tx/4VXJrL84Q5b4EJCeNxw5PVgYHyyq3RtchVYikq42tiAbfcaLvpun2QxWsbZAfGz6U9coQTraEfFxYq85z14Dg1bU?cluster=testnet",
+    "slot": 417381318,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268910026,
+      "processed_at": 1782268910028,
+      "confirmed_at": 1782268910029
+    },
+    "latency_metrics": {
+      "to_processed_ms": 2,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "58xKQdjjXJKqfjLYHsBeuHZMeJ4Qitv2ynFts3WHpFQ5byfETgjnho7bVWBH4HbHQpdXdwWSinnBcqVWST3LDMz1",
+    "solscan_url": "https://solscan.io/tx/58xKQdjjXJKqfjLYHsBeuHZMeJ4Qitv2ynFts3WHpFQ5byfETgjnho7bVWBH4HbHQpdXdwWSinnBcqVWST3LDMz1?cluster=testnet",
+    "slot": 417381544,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782268990360,
+      "processed_at": 1782268990360,
+      "confirmed_at": 1782268990361
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "r42NuG9qiYm733W1zqsjPF5wmw9FwqQqzSHpSCitp9LgL5LuNCbHxkgbyAcKqszVEhcUwmLugii2QggyW4uSsSB",
+    "solscan_url": "https://solscan.io/tx/r42NuG9qiYm733W1zqsjPF5wmw9FwqQqzSHpSCitp9LgL5LuNCbHxkgbyAcKqszVEhcUwmLugii2QggyW4uSsSB?cluster=testnet",
+    "slot": 417381598,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269010011,
+      "processed_at": 1782269010012,
+      "confirmed_at": 1782269010012
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 0
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "3LKjvdBv9i9fvAsCFwsL6Bjx8EM6B2dEwjs22EkMynyvpUNJMuyBuaf7aZiLRKCrkzCuX9MZ5XKSmKZj2xmAaYUR",
+    "solscan_url": "https://solscan.io/tx/3LKjvdBv9i9fvAsCFwsL6Bjx8EM6B2dEwjs22EkMynyvpUNJMuyBuaf7aZiLRKCrkzCuX9MZ5XKSmKZj2xmAaYUR?cluster=testnet",
+    "slot": 417381652,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269031695,
+      "processed_at": 1782269031696,
+      "confirmed_at": 1782269031698
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 2
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "42VkrrbBaKatr6bw9LbFN4HxHdffntM2WcCxMGrLJSMyjnE4aqcVhizwSb1H7gjJtUNz52ieMip5cvj8tWVWAkxD",
+    "solscan_url": "https://solscan.io/tx/42VkrrbBaKatr6bw9LbFN4HxHdffntM2WcCxMGrLJSMyjnE4aqcVhizwSb1H7gjJtUNz52ieMip5cvj8tWVWAkxD?cluster=testnet",
+    "slot": 417381708,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269052989,
+      "processed_at": 1782269052989,
+      "confirmed_at": 1782269052990
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "3N6b7W1NyXxvbPgjdrFvHsvnTpL4nkwyud49Q6PbC6m6tLpS346gPRKXZPezNKNJNmFZgE4TGNLrhE8Ze57oCEds",
+    "solscan_url": "https://solscan.io/tx/3N6b7W1NyXxvbPgjdrFvHsvnTpL4nkwyud49Q6PbC6m6tLpS346gPRKXZPezNKNJNmFZgE4TGNLrhE8Ze57oCEds?cluster=testnet",
+    "slot": 417381764,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269075207,
+      "processed_at": 1782269075208,
+      "confirmed_at": 1782269075209
+    },
+    "latency_metrics": {
+      "to_processed_ms": 1,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "2thAyeVXQShqvqAY8audG6SQieHrJCSC3qugdnC4Joc9Z1S8ceWKHD5SGBsN8kr4MEPaHFthnsKvRnwhdSDoZX69",
+    "solscan_url": "https://solscan.io/tx/2thAyeVXQShqvqAY8audG6SQieHrJCSC3qugdnC4Joc9Z1S8ceWKHD5SGBsN8kr4MEPaHFthnsKvRnwhdSDoZX69?cluster=testnet",
+    "slot": 417381823,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269096025,
+      "processed_at": 1782269096025,
+      "confirmed_at": 1782269096026
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
+  },
+  {
+    "bundle_id": "direct_land",
+    "signature": "5J3jFkjS6pDssFJ5HVE4PjkLogpwuMKW8DmSwNK5SrnEcC44yjfGJjBUrcwaA1TGea9Q9pagCVEE4vJTmnzpZsKY",
+    "solscan_url": "https://solscan.io/tx/5J3jFkjS6pDssFJ5HVE4PjkLogpwuMKW8DmSwNK5SrnEcC44yjfGJjBUrcwaA1TGea9Q9pagCVEE4vJTmnzpZsKY?cluster=testnet",
+    "slot": 417381878,
+    "tip_lamports": 0,
+    "status": "success",
+    "commitment_progression": {
+      "submitted_at": 1782269120246,
+      "processed_at": 1782269120246,
+      "confirmed_at": 1782269120247
+    },
+    "latency_metrics": {
+      "to_processed_ms": 0,
+      "to_confirmed_ms": 1
+    }
   }
 ]

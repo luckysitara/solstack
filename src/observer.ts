@@ -28,17 +28,20 @@ export class NetworkObserver extends EventEmitter {
   private retryCount = 0;
   private maxRetries = 10;
   public isStopped = false;
+  private payerPublicKey?: PublicKey;
 
   constructor(
     grpcUrl: string,
     apiKey: string,
     rpcUrl: string,
     blockEngineUrl?: string,
-    authKeypair?: Keypair
+    authKeypair?: Keypair,
+    payerPublicKey?: PublicKey
   ) {
     super();
     this.client = new Client(grpcUrl, apiKey || undefined, undefined);
     this.connection = new Connection(rpcUrl, "processed");
+    this.payerPublicKey = payerPublicKey;
     if (blockEngineUrl && authKeypair) {
       this.searcherClientInstance = searcherClient(blockEngineUrl, authKeypair);
     }
@@ -65,7 +68,16 @@ export class NetworkObserver extends EventEmitter {
 
     const request: SubscribeRequest = {
       slots: { all: { filterByCommitment: true } },
-      transactions: {},
+      transactions: this.payerPublicKey ? {
+        payer_filter: {
+          vote: false,
+          failed: false,
+          signature: undefined,
+          accountRequired: [ this.payerPublicKey.toBase58() ],
+          accountExclude: [],
+          accountInclude: []
+        }
+      } : {},
       blocks: {},
       blocksMeta: {},
       accounts: {},

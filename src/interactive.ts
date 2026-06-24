@@ -81,8 +81,7 @@ async function runInteractive() {
 
   console.log(chalk.cyan("\nInitializing systems... Please wait."));
   
-  // Initialize Subsystems
-  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair);
+  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair, payerKeypair.publicKey);
   const stack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   const agent = new AIAgent({
     provider: answers.provider,
@@ -162,7 +161,9 @@ async function runInteractive() {
     });
 
     let currentTip = tipDecision.lamports;
-    const buildResult = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+    const tipAccounts = await stack.getTipAccounts();
+    const tipAccount = tipAccounts[Math.floor(Math.random() * tipAccounts.length)];
+    const buildResult = await stack.buildBundle([ix], currentTip, tipAccount);
     
     let txSignature = buildResult.signature;
     let currentBuild = buildResult;
@@ -217,7 +218,8 @@ async function runInteractive() {
 
         if (recovery.action === "retry" && attempt < maxAttempts - 1) {
           currentTip = Math.floor(currentTip * recovery.newTipMultiplier);
-          const freshBuild = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+          const blockhashToUse = recovery.refreshBlockhash ? undefined : currentBuild.tx.message.recentBlockhash;
+          const freshBuild = await stack.buildBundle([ix], currentTip, tipAccount, blockhashToUse);
           txSignature = freshBuild.signature;
           currentBuild = freshBuild;
           attempt++;

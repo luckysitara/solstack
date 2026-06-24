@@ -19,7 +19,7 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS for UI integrations
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -48,7 +48,7 @@ let currentRpcUrl = rpcUrl;
 let connection = new Connection(currentRpcUrl, "confirmed");
 
 // Initialize Observation, Execution, Intelligence, and Tracker SDKs
-let observer = new NetworkObserver(grpcUrl, apiKey, currentRpcUrl, blockEngineUrl, authKeypair);
+let observer = new NetworkObserver(grpcUrl, apiKey, currentRpcUrl, blockEngineUrl, authKeypair, payerKeypair.publicKey);
 let stack = new TransactionStack(currentRpcUrl, blockEngineUrl, authKeypair, payerKeypair);
 const agent = new AIAgent({
   provider: process.env.AI_PROVIDER || "lmstudio",
@@ -82,7 +82,7 @@ observer.start().catch((err) => {
 });
 
 // Health check endpoint
-app.get("/api/v1/health", (req, res) => {
+app.get("/api/v1/health", (req: any, res: any) => {
   return res.json({
     status: "healthy",
     network: currentNetwork.toUpperCase(),
@@ -92,7 +92,7 @@ app.get("/api/v1/health", (req, res) => {
 });
 
 // Transaction logs endpoint
-app.get("/api/v1/transactions", (req, res) => {
+app.get("/api/v1/transactions", (req: any, res: any) => {
   try {
     const logPath = "./logs/lifecycle.json";
     if (fs.existsSync(logPath)) {
@@ -144,7 +144,7 @@ app.post("/api/v1/network", async (req: express.Request, res: express.Response) 
 
     // Re-initialize instances
     connection = new Connection(targetRpcUrl, "confirmed");
-    observer = new NetworkObserver(targetGrpcUrl, apiKey, targetRpcUrl, targetBlockEngineUrl, authKeypair);
+    observer = new NetworkObserver(targetGrpcUrl, apiKey, targetRpcUrl, targetBlockEngineUrl, authKeypair, payerKeypair.publicKey);
     stack = new TransactionStack(targetRpcUrl, targetBlockEngineUrl, authKeypair, payerKeypair);
     tracker = new LifecycleTracker("./logs", currentNetwork);
 
@@ -207,7 +207,9 @@ app.post("/api/v1/submit-transfer", async (req: express.Request, res: express.Re
 
     // 3. Build bundle
     let currentTip = tipDecision.lamports;
-    const buildResult = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+    const tipAccounts = await stack.getTipAccounts();
+    const tipAccount = tipAccounts[Math.floor(Math.random() * tipAccounts.length)];
+    const buildResult = await stack.buildBundle([ix], currentTip, tipAccount);
     
     let txSignature = buildResult.signature;
     let currentBuild = buildResult;
@@ -261,7 +263,8 @@ app.post("/api/v1/submit-transfer", async (req: express.Request, res: express.Re
 
         if (recovery.action === "retry" && attempt < maxAttempts - 1) {
           currentTip = Math.floor(currentTip * recovery.newTipMultiplier);
-          const freshBuild = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+          const blockhashToUse = recovery.refreshBlockhash ? undefined : currentBuild.tx.message.recentBlockhash;
+          const freshBuild = await stack.buildBundle([ix], currentTip, tipAccount, blockhashToUse);
           txSignature = freshBuild.signature;
           currentBuild = freshBuild;
           attempt++;
