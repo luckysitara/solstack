@@ -21,7 +21,7 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS for UI integrations
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -99,7 +99,7 @@ observer.start().catch((err) => {
 });
 
 // Health check endpoint
-app.get("/api/v1/health", (req, res) => {
+app.get("/api/v1/health", (req: any, res: any) => {
   return res.json({
     status: "healthy",
     network: currentNetwork.toUpperCase(),
@@ -109,7 +109,7 @@ app.get("/api/v1/health", (req, res) => {
 });
 
 // Transaction logs endpoint
-app.get("/api/v1/transactions", (req, res) => {
+app.get("/api/v1/transactions", (req: any, res: any) => {
   try {
     const logPath = "./logs/lifecycle.json";
     if (fs.existsSync(logPath)) {
@@ -361,21 +361,37 @@ app.post("/api/v1/submit-transfer", async (req: express.Request, res: express.Re
       console.error(`[API Server Error] Failed to assemble bundle: ${buildErr.message}`);
       return res.status(500).json({ success: false, error: buildErr.message });
     }
-
     let attempt = 0;
     const maxAttempts = 3;
     let success = false;
     let txHash = "";
+
+    let recovery: any = null;
 
     // 4. Retry loop with AI exception recovery
     while (attempt < maxAttempts && !success) {
       try {
         if (attempt > 0) {
           console.log(`[Retry Attempt ${attempt}/${maxAttempts - 1}] Rebuilding bundle...`);
-          if (action === "transfer" || action === "mint") {
-            const rebuildResult = await buildInitialBundle(currentTip);
-            txSignature = rebuildResult.signature;
-            currentBuild = rebuildResult;
+          const blockhashToUse = (recovery && !recovery.refreshBlockhash) ? (currentBuild.tx?.message?.recentBlockhash || currentBuild.tx?.recentBlockhash) : undefined;
+          if (action === "transfer") {
+            const destPubkey = new PublicKey(destination);
+            const ix = SystemProgram.transfer({
+              fromPubkey: payerKeypair.publicKey,
+              toPubkey: destPubkey,
+              lamports: amountLamports,
+            });
+            currentBuild = await stack.buildBundle([ix], currentTip, selectedTipAccount, [], blockhashToUse);
+            txSignature = currentBuild.signature;
+          } else if (action === "mint") {
+            currentBuild = await stack.buildBundle(
+              tokenSetup.instructions,
+              currentTip,
+              selectedTipAccount,
+              tokenSetup.signers,
+              blockhashToUse
+            );
+            txSignature = currentBuild.signature;
           } else if (action === "swap") {
             const buildRes = await stack.buildBundleFromTransactions([swapTx], currentTip, selectedTipAccount);
             txSignature = buildRes.signature;

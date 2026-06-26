@@ -6,7 +6,7 @@ import ClientImport, {
 const Client = (ClientImport as any).default || ClientImport;
 
 async function main() {
-  const host = "https://solana-devnet-yellowstone-grpc.publicnode.com";
+  const host = "https://fra.grpc.solinfra.dev:443";
   const apiKey = "fc60677130b9b4c2799d0358d2aa39f9889e7fc9af0e6902ba17a8e49a89a93d";
   console.log(`Connecting to devnet Yellowstone: ${host}...`);
   

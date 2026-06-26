@@ -168,8 +168,8 @@ async function main() {
             // Apply AI tip multiplier and refresh blockhash dynamically
             currentTip = Math.floor(currentTip * recovery.newTipMultiplier);
             console.log(`[AI Recovery] Refreshing blockhash and raising tip to ${currentTip} lamports...`);
-            
-            const freshBuild = await stack.buildBundle([ix], currentTip, selectedTipAccount);
+            const blockhashToUse = recovery.refreshBlockhash ? undefined : ((currentBuild.tx as any)?.message?.recentBlockhash || (currentBuild.tx as any)?.recentBlockhash);
+            const freshBuild = await stack.buildBundle([ix], currentTip, selectedTipAccount, [], blockhashToUse);
             txSignature = freshBuild.signature;
             currentBuild = freshBuild;
             attempt++;

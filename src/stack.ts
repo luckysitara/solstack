@@ -51,14 +51,17 @@ export class TransactionStack {
     instructions: any[],
     tipAmountLamports: number,
     tipAccount: PublicKey,
-    additionalSigners: Keypair[] = []
+    additionalSigners: Keypair[] = [],
+    recentBlockhash?: string
   ): Promise<{ bundle: Bundle; signature: string; tx: VersionedTransaction }> {
-    let blockhash = "";
-    try {
-      const res = await this.connection.getLatestBlockhash("processed");
-      blockhash = res.blockhash;
-    } catch (err: any) {
-      throw new Error(`failed to get recent blockhash (endpoint: ${this.connection.rpcEndpoint}): ${err.message || err}`);
+    let blockhash = recentBlockhash || "";
+    if (!blockhash) {
+      try {
+        const res = await this.connection.getLatestBlockhash("processed");
+        blockhash = res.blockhash;
+      } catch (err: any) {
+        throw new Error(`failed to get recent blockhash (endpoint: ${this.connection.rpcEndpoint}): ${err.message || err}`);
+      }
     }
     const bundleInstructions = [...instructions];
     if (tipAmountLamports > 0) {

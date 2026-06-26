@@ -342,7 +342,6 @@ async function runInteractive() {
     const tipDecision = await agent.decideTip(floorData, "Stable");
     console.log(chalk.green(`[AI Tip Decision] `) + chalk.white(`${tipDecision.lamports} lamports | Reasoning: ${tipDecision.reasoning}`));
 
-    // 3. Assemble and Submit Bundle
     let currentTip = tipDecision.lamports;
     let txSignature = "";
     let currentBuild: any = null;
@@ -451,15 +450,32 @@ async function runInteractive() {
     const maxAttempts = 3;
     let success = false;
     let txHash = "";
+    let recovery: any = null;
 
     while (attempt < maxAttempts && !success) {
       try {
         if (attempt > 0) {
           console.log(chalk.yellow(`\n[Attempt ${attempt + 1}/${maxAttempts}] Rebuilding transaction bundle...`));
-          if (action === "SOL Transfer" || action === "Create SPL Token & Mint") {
-            const rebuildResult = await buildInitialBundle(currentTip);
-            txSignature = rebuildResult.signature;
-            currentBuild = rebuildResult;
+          const blockhashToUse = (recovery && !recovery.refreshBlockhash) ? (currentBuild.tx?.message?.recentBlockhash || currentBuild.tx?.recentBlockhash) : undefined;
+          if (action === "SOL Transfer") {
+            const destPubkey = new PublicKey(actionParams.destination);
+            const amountLamports = Math.floor(parseFloat(actionParams.amount) * 1_000_000_000);
+            const ix = SystemProgram.transfer({
+              fromPubkey: payerKeypair.publicKey,
+              toPubkey: destPubkey,
+              lamports: amountLamports,
+            });
+            currentBuild = await currentStack.buildBundle([ix], currentTip, selectedTipAccount, [], blockhashToUse);
+            txSignature = currentBuild.signature;
+          } else if (action === "Create SPL Token & Mint") {
+            currentBuild = await currentStack.buildBundle(
+              tokenSetup.instructions,
+              currentTip,
+              selectedTipAccount,
+              tokenSetup.signers,
+              blockhashToUse
+            );
+            txSignature = currentBuild.signature;
           } else if (action === "Jupiter Token Swap (SOL -> USDC)") {
             const buildRes = await currentStack.buildBundleFromTransactions([swapTx], currentTip, selectedTipAccount);
             txSignature = buildRes.signature;
@@ -505,7 +521,7 @@ async function runInteractive() {
         
         // Consult AI for recovery strategy
         console.log(chalk.yellow("[AI Query] Analyzing failure via AI agent..."));
-        const recovery = await agent.reasonAboutFailure(error.message, { lastTip: currentTip });
+        recovery = await agent.reasonAboutFailure(error.message, { lastTip: currentTip });
         console.log(chalk.green(`[AI Recovery Decision] `) + chalk.white(`${recovery.action.toUpperCase()} | Reasoning: ${recovery.reasoning}`));
         currentTracker.recordFailure(txSignature || "error", error.message, classification, recovery.reasoning);
 
