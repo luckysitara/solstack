@@ -20,9 +20,12 @@ process.on('unhandledRejection', (err: any) => {
 });
 
 async function main() {
-  const apiKey = process.env.SOLINFRA_API_KEY!;
+  const apiKey = process.env.SOLINFRA_API_KEY || "";
   const network = process.env.NETWORK || "testnet";
-  const rpcUrl = process.env.RPC_URL!;
+  let rpcUrl = process.env.RPC_URL!;
+  if (rpcUrl.includes("publicnode.com") && apiKey && !rpcUrl.endsWith(apiKey)) {
+    rpcUrl = rpcUrl.replace(/\/$/, "") + "/" + apiKey;
+  }
   const grpcUrl = process.env.GRPC_URL!;
   const blockEngineUrl = process.env.BLOCK_ENGINE_URL!;
   
@@ -38,8 +41,16 @@ async function main() {
   const payerKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(payerKeypairPath, "utf-8"))));
   const connection = createConnectionWithTimeout(rpcUrl, "confirmed");
 
+  // Determine initial gRPC API key based on network
+  let initialGrpcApiKey = "";
+  if (network === "testnet" || network === "devnet") {
+    initialGrpcApiKey = "";
+  } else {
+    initialGrpcApiKey = process.env.MAINNET_GRPC_API_KEY || process.env.SOLINFRA_API_KEY || "";
+  }
+
   // Pass Jito Block Engine config to network observer for live schedule checks
-  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair, [payerKeypair.publicKey.toBase58()]);
+  const observer = new NetworkObserver(grpcUrl, initialGrpcApiKey, rpcUrl, blockEngineUrl, authKeypair, [payerKeypair.publicKey.toBase58()]);
   const stack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   
   const agent = new AIAgent({

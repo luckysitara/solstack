@@ -137,13 +137,14 @@ async function performNetworkSwitch(targetNetwork: string) {
   let targetGrpcApiKey = "";
 
   if (targetNetwork === "testnet") {
-    targetRpcUrl = "https://api.testnet.solana.com";
-    targetGrpcUrl = "https://solana-testnet-yellowstone-grpc.publicnode.com:443";
+    const key = process.env.SOLINFRA_API_KEY || "";
+    targetRpcUrl = key ? `https://solana-testnet-rpc.publicnode.com/${key}` : "https://solana-testnet-rpc.publicnode.com";
+    targetGrpcUrl = "solana-testnet-yellowstone-grpc.publicnode.com:443";
     targetBlockEngineUrl = "ny.testnet.block-engine.jito.wtf";
     targetGrpcApiKey = "";
   } else if (targetNetwork === "devnet") {
     targetRpcUrl = "https://api.devnet.solana.com";
-    targetGrpcUrl = "https://solana-devnet-yellowstone-grpc.publicnode.com:443";
+    targetGrpcUrl = "solana-devnet-yellowstone-grpc.publicnode.com:443";
     targetBlockEngineUrl = "dallas.devnet.block-engine.jito.wtf";
     targetGrpcApiKey = "";
   } else { // mainnet-beta / mainnet
@@ -151,11 +152,12 @@ async function performNetworkSwitch(targetNetwork: string) {
     const mainnetGrpc = process.env.MAINNET_GRPC_URL || "";
     const envRpc = process.env.RPC_URL || "";
     const envGrpc = process.env.GRPC_URL || "";
+    const key = process.env.SOLINFRA_API_KEY || "";
 
     if (mainnetRpc) {
       targetRpcUrl = mainnetRpc;
-    } else if (process.env.SOLINFRA_API_KEY) {
-      targetRpcUrl = `https://fra.rpc.solinfra.dev/sol?api_key=${process.env.SOLINFRA_API_KEY}`;
+    } else if (key) {
+      targetRpcUrl = `https://solana-rpc.publicnode.com/${key}`;
     } else if (envRpc && !envRpc.includes("testnet") && !envRpc.includes("devnet")) {
       targetRpcUrl = envRpc;
     } else {
@@ -165,14 +167,11 @@ async function performNetworkSwitch(targetNetwork: string) {
     if (mainnetGrpc) {
       targetGrpcUrl = mainnetGrpc;
       targetGrpcApiKey = process.env.MAINNET_GRPC_API_KEY || "";
-    } else if (process.env.SOLINFRA_API_KEY) {
-      targetGrpcUrl = "https://fra.grpc.solinfra.dev:443";
-      targetGrpcApiKey = process.env.SOLINFRA_API_KEY;
     } else if (envGrpc && !envGrpc.includes("testnet") && !envGrpc.includes("devnet")) {
       targetGrpcUrl = envGrpc;
       targetGrpcApiKey = "";
     } else {
-      targetGrpcUrl = "https://solana-yellowstone-grpc.publicnode.com:443";
+      targetGrpcUrl = "solana-yellowstone-grpc.publicnode.com:443";
       targetGrpcApiKey = "";
     }
 

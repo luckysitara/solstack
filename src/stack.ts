@@ -53,7 +53,13 @@ export class TransactionStack {
     tipAccount: PublicKey,
     additionalSigners: Keypair[] = []
   ): Promise<{ bundle: Bundle; signature: string; tx: VersionedTransaction }> {
-    const { blockhash } = await this.connection.getLatestBlockhash("processed");
+    let blockhash = "";
+    try {
+      const res = await this.connection.getLatestBlockhash("processed");
+      blockhash = res.blockhash;
+    } catch (err: any) {
+      throw new Error(`failed to get recent blockhash (endpoint: ${this.connection.rpcEndpoint}): ${err.message || err}`);
+    }
     const bundleInstructions = [...instructions];
     if (tipAmountLamports > 0) {
       bundleInstructions.push(
@@ -83,7 +89,13 @@ export class TransactionStack {
   ): Promise<{ bundle: Bundle; signature: string }> {
     const bundleTxs = [...transactions];
     if (tipAmountLamports > 0) {
-      const { blockhash } = await this.connection.getLatestBlockhash("processed");
+      let blockhash = "";
+      try {
+        const res = await this.connection.getLatestBlockhash("processed");
+        blockhash = res.blockhash;
+      } catch (err: any) {
+        throw new Error(`failed to get recent blockhash (endpoint: ${this.connection.rpcEndpoint}): ${err.message || err}`);
+      }
       const tipIx = SystemProgram.transfer({
         fromPubkey: this.payer.publicKey,
         toPubkey: tipAccount,

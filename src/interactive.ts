@@ -35,10 +35,13 @@ async function runInteractive() {
   const authKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(authKeypairPath, "utf-8"))));
   const payerKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(payerKeypairPath, "utf-8"))));
   
-  const rpcUrl = process.env.RPC_URL!;
+  const apiKey = process.env.SOLINFRA_API_KEY || "";
+  let rpcUrl = process.env.RPC_URL || "";
+  if (rpcUrl.includes("publicnode.com") && apiKey && !rpcUrl.endsWith(apiKey)) {
+    rpcUrl = rpcUrl.replace(/\/$/, "") + "/" + apiKey;
+  }
   const grpcUrl = process.env.GRPC_URL!;
   const blockEngineUrl = process.env.BLOCK_ENGINE_URL!;
-  const apiKey = process.env.SOLINFRA_API_KEY!;
   let currentNetwork = process.env.NETWORK || "testnet";
 
   let currentConnection = createConnectionWithTimeout(rpcUrl, "confirmed");
@@ -142,7 +145,13 @@ async function runInteractive() {
   console.log(chalk.cyan("\nInitializing systems... Please wait."));
   
   // Initialize Subsystems
-  let currentObserver = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair, [payerKeypair.publicKey.toBase58()]);
+  let initialGrpcApiKey = "";
+  if (currentNetwork === "testnet" || currentNetwork === "devnet") {
+    initialGrpcApiKey = "";
+  } else {
+    initialGrpcApiKey = process.env.MAINNET_GRPC_API_KEY || process.env.SOLINFRA_API_KEY || "";
+  }
+  let currentObserver = new NetworkObserver(grpcUrl, initialGrpcApiKey, rpcUrl, blockEngineUrl, authKeypair, [payerKeypair.publicKey.toBase58()]);
   let currentStack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   const agent = new AIAgent({
     provider: initialAnswers.provider,
