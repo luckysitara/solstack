@@ -10,7 +10,7 @@
     "api": "tsc && node dist/api.js",
     "interactive": "tsc && node dist/interactive.js",
     "dashboard": "npm run dev --prefix dashboard",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tsc && node dist/test_all_usecases.js"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +32,7 @@
     "@grpc/grpc-js": "^1.14.4",
     "@grpc/proto-loader": "^0.8.1",
     "@lmstudio/sdk": "^1.5.0",
+    "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "@triton-one/yellowstone-grpc": "^5.0.8",
     "axios": "^1.18.0",

@@ -6,6 +6,7 @@ import { EventEmitter } from "events";
 import { Connection, PublicKey, Keypair } from "@solana/web3.js";
 import { searcherClient } from "jito-ts/dist/sdk/block-engine/searcher.js";
 import bs58 from "bs58";
+import { createConnectionWithTimeout } from "./stack.js";
 
 const Client = (ClientImport as any).default || ClientImport;
 
@@ -28,25 +29,70 @@ export class NetworkObserver extends EventEmitter {
   private retryCount = 0;
   private maxRetries = 10;
   public isStopped = false;
+  private watchAccounts: string[] = [];
 
   constructor(
     grpcUrl: string,
     apiKey: string,
     rpcUrl: string,
     blockEngineUrl?: string,
-    authKeypair?: Keypair
+    authKeypair?: Keypair,
+    watchAccounts: string[] = []
   ) {
     super();
     this.client = new Client(grpcUrl, apiKey || undefined, undefined);
-    this.connection = new Connection(rpcUrl, "processed");
+    this.connection = createConnectionWithTimeout(rpcUrl, "processed");
+    this.watchAccounts = watchAccounts;
     if (blockEngineUrl && authKeypair) {
-      this.searcherClientInstance = searcherClient(blockEngineUrl, authKeypair);
+      const useJitoAuth = process.env.USE_JITO_AUTH === "true";
+      this.searcherClientInstance = searcherClient(blockEngineUrl, useJitoAuth ? authKeypair : undefined);
     }
+  }
+
+  public addWatchAccount(account: string) {
+    if (!this.watchAccounts.includes(account)) {
+      this.watchAccounts.push(account);
+      if (this.stream && !this.isStopped) {
+        this.resubscribe().catch(err => console.error("[Observer] resubscribe error:", err));
+      }
+    }
+  }
+
+  private async resubscribe() {
+    const request: SubscribeRequest = {
+      slots: { all: { filterByCommitment: true } },
+      transactions: this.watchAccounts.length > 0 ? {
+        payer_txs: {
+          vote: false,
+          failed: false,
+          signature: undefined,
+          accountInclude: this.watchAccounts,
+          accountExclude: [],
+          accountRequired: [],
+        }
+      } : {},
+      blocks: {},
+      blocksMeta: {},
+      accounts: {},
+      commitment: CommitmentLevel.PROCESSED,
+      entry: {},
+      transactionsStatus: {},
+      accountsDataSlice: [],
+    };
+    await new Promise<void>((resolve, reject) => {
+      this.stream.write(request, (err: any) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    console.log(`[Observer] Subscriptions updated. Watching accounts: ${this.watchAccounts.join(", ")}`);
   }
 
   async start() {
     this.isStopped = false;
-    await this.connectWithRetry();
+    this.connectWithRetry().catch(err => {
+      console.error("[Observer] Background connection error:", err.message || err);
+    });
   }
 
   async stop() {
@@ -65,7 +111,16 @@ export class NetworkObserver extends EventEmitter {
 
     const request: SubscribeRequest = {
       slots: { all: { filterByCommitment: true } },
-      transactions: {},
+      transactions: this.watchAccounts.length > 0 ? {
+        payer_txs: {
+          vote: false,
+          failed: false,
+          signature: undefined,
+          accountInclude: this.watchAccounts,
+          accountExclude: [],
+          accountRequired: [],
+        }
+      } : {},
       blocks: {},
       blocksMeta: {},
       accounts: {},

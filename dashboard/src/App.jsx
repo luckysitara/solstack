@@ -5,6 +5,9 @@ function App() {
   const [health, setHealth] = useState({ status: 'offline', network: 'TESTNET', payer: 'N/A', grpcConnected: false });
   const [destination, setDestination] = useState('');
   const [amount, setAmount] = useState('0.001');
+  const [action, setAction] = useState('transfer');
+  const [decimals, setDecimals] = useState('9');
+  const [mintAmount, setMintAmount] = useState('1000000');
   
   // Submit state & Stepper state
   const [submitting, setSubmitting] = useState(false);
@@ -117,11 +120,20 @@ function App() {
         { step: 2, text: 'Assembling Jito bundle & signing payload...', status: 'active' }
       ]);
 
+      let bodyData = {};
+      if (action === 'transfer') {
+        bodyData = { action, destination, amountLamports: parseFloat(amount) * 1_000_000_000 };
+      } else if (action === 'mint') {
+        bodyData = { action, decimals: parseInt(decimals, 10), mintAmount: parseFloat(mintAmount) };
+      } else {
+        bodyData = { action, amount: parseFloat(amount) };
+      }
+
       // Step 2: Assemble Jito payload and send POST to backend
       const response = await fetch(`${API_URL}/api/v1/submit-transfer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destination, amountLamports: parseFloat(amount) * 1_000_000_000 })
+        body: JSON.stringify(bodyData)
       });
       const data = await response.json();
 
@@ -141,7 +153,15 @@ function App() {
       setPipelineLog(prev => [
         ...prev.map(l => l.step === 3 ? { ...l, status: 'success', text: 'Yellowstone Geyser processed block confirmation.' } : l)
       ]);
-      setTxResult({ success: true, signature: data.signature, solscanUrl: data.solscanUrl, timing: data.timingDecision, tip: data.tipDecision });
+      setTxResult({ 
+        success: true, 
+        signature: data.signature, 
+        solscanUrl: data.solscanUrl, 
+        timing: data.timingDecision, 
+        tip: data.tipDecision,
+        mintAddress: data.mintAddress,
+        ataAddress: data.ataAddress
+      });
       fetchTransactions();
 
     } catch (err) {
@@ -212,37 +232,100 @@ function App() {
             <p className="wallet-note">Transactions are optimized using Yellowstone Geyser live schedules before bundler injection.</p>
           </div>
 
-          {/* Transfer Portal */}
+          {/* Transaction Portal */}
           <div className="form-card glass-panel">
             <h2>Send Smart Transaction</h2>
             <form onSubmit={handleSend}>
               <div className="input-group">
-                <label>Destination Wallet Address</label>
-                <input 
-                  type="text" 
-                  value={destination} 
-                  onChange={(e) => setDestination(e.target.value)} 
-                  placeholder="Enter Solana public key" 
-                  required
+                <label>Operation Type</label>
+                <select 
+                  value={action} 
+                  onChange={(e) => setAction(e.target.value)} 
+                  className="network-select" 
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.1)' }}
                   disabled={submitting}
-                />
+                >
+                  <option value="transfer">SOL Transfer</option>
+                  <option value="mint">Create SPL Token & Mint</option>
+                  <option value="swap">{"Jupiter Swap (SOL -> USDC, Mainnet)"}</option>
+                  <option value="arbitrage">{"Arbitrage Loop (SOL -> USDC -> SOL, Mainnet)"}</option>
+                </select>
               </div>
 
-              <div className="input-group">
-                <label>Amount (SOL)</label>
-                <input 
-                  type="number" 
-                  step="any"
-                  value={amount} 
-                  onChange={(e) => setAmount(e.target.value)} 
-                  placeholder="0.001" 
-                  required
-                  disabled={submitting}
-                />
-              </div>
+              {action === 'transfer' && (
+                <>
+                  <div className="input-group">
+                    <label>Destination Wallet Address</label>
+                    <input 
+                      type="text" 
+                      value={destination} 
+                      onChange={(e) => setDestination(e.target.value)} 
+                      placeholder="Enter Solana public key" 
+                      required
+                      disabled={submitting}
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label>Amount (SOL)</label>
+                    <input 
+                      type="number" 
+                      step="any"
+                      value={amount} 
+                      onChange={(e) => setAmount(e.target.value)} 
+                      placeholder="0.001" 
+                      required
+                      disabled={submitting}
+                    />
+                  </div>
+                </>
+              )}
+
+              {action === 'mint' && (
+                <>
+                  <div className="input-group">
+                    <label>Token Decimals</label>
+                    <input 
+                      type="number" 
+                      value={decimals} 
+                      onChange={(e) => setDecimals(e.target.value)} 
+                      placeholder="9" 
+                      required
+                      disabled={submitting}
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label>Amount of Tokens to Mint</label>
+                    <input 
+                      type="number" 
+                      value={mintAmount} 
+                      onChange={(e) => setMintAmount(e.target.value)} 
+                      placeholder="1000000" 
+                      required
+                      disabled={submitting}
+                    />
+                  </div>
+                </>
+              )}
+
+              {(action === 'swap' || action === 'arbitrage') && (
+                <div className="input-group">
+                  <label>Amount of SOL to Swap</label>
+                  <input 
+                    type="number" 
+                    step="any"
+                    value={amount} 
+                    onChange={(e) => setAmount(e.target.value)} 
+                    placeholder="0.01" 
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+              )}
 
               <button type="submit" className="submit-btn gradient-btn" disabled={submitting || health.status === 'offline'}>
-                {submitting ? 'Optimizing & Executing...' : 'Execute AI-Optimized Transfer'}
+                {submitting ? 'Optimizing & Executing...' : 'Execute AI-Optimized Action'}
               </button>
             </form>
           </div>
@@ -323,6 +406,18 @@ function App() {
                       <a href={txResult.solscanUrl} target="_blank" rel="noreferrer" className="solscan-link">
                         View On Solana Explorer
                       </a>
+                      {txResult.mintAddress && (
+                        <div className="detail-row" style={{ marginTop: '0.5rem' }}>
+                          <span>Mint Address:</span>
+                          <code className="signature-code" style={{ fontSize: '0.8rem' }}>{txResult.mintAddress}</code>
+                        </div>
+                      )}
+                      {txResult.ataAddress && (
+                        <div className="detail-row" style={{ marginTop: '0.5rem' }}>
+                          <span>ATA Address:</span>
+                          <code className="signature-code" style={{ fontSize: '0.8rem' }}>{txResult.ataAddress}</code>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>

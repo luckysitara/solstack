@@ -188,7 +188,7 @@ export class AnthropicProvider implements AIProvider {
         max_tokens: 1024,
         messages: [{ role: "user", content: prompt + " Respond ONLY with valid JSON." }]
       },
-      { headers }
+      { headers, timeout: 8000 }
     );
     const content = response.data.content[0].text;
     return parseJSONResponse(content);
@@ -260,7 +260,8 @@ export class DeepSeekProvider implements AIProvider {
         headers: {
           "Authorization": `Bearer ${this.apiKey}`,
           "Content-Type": "application/json"
-        }
+        },
+        timeout: 8000
       }
     );
     return parseJSONResponse(response.data.choices[0].message.content);
@@ -505,7 +506,8 @@ export class OpenAIProvider implements AIProvider {
         headers: {
           "Authorization": `Bearer ${this.apiKey}`,
           "Content-Type": "application/json"
-        }
+        },
+        timeout: 8000
       }
     );
     return parseJSONResponse(response.data.choices[0].message.content);
@@ -668,7 +670,8 @@ export class AIAgent {
   }
 
   async decideTiming(currentSlot: number, isJitoLeaderUpcoming: boolean): Promise<TimingDecision> {
-    const res = await this.execute(p => p.decideTiming(currentSlot, isJitoLeaderUpcoming));
+    const resolvedSlot = currentSlot === 0 ? 429000000 : currentSlot;
+    const res = await this.execute(p => p.decideTiming(resolvedSlot, isJitoLeaderUpcoming));
     return {
       shouldSubmit: typeof res.shouldSubmit === "boolean" ? res.shouldSubmit : true,
       waitTimeMs: typeof res.waitTimeMs === "number" ? Math.round(res.waitTimeMs) : 0,

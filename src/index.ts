@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { Keypair, SystemProgram, PublicKey, Connection } from "@solana/web3.js";
 import { NetworkObserver } from "./observer.js";
-import { TransactionStack } from "./stack.js";
+import { TransactionStack, createConnectionWithTimeout } from "./stack.js";
 import { AIAgent } from "./agent.js";
 import { LifecycleTracker, classifyFailure } from "./tracker.js";
 import { getDynamicTip } from "./utils/tip.js";
@@ -36,10 +36,10 @@ async function main() {
 
   const authKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(authKeypairPath, "utf-8"))));
   const payerKeypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(fs.readFileSync(payerKeypairPath, "utf-8"))));
-  const connection = new Connection(rpcUrl, "confirmed");
+  const connection = createConnectionWithTimeout(rpcUrl, "confirmed");
 
   // Pass Jito Block Engine config to network observer for live schedule checks
-  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair);
+  const observer = new NetworkObserver(grpcUrl, apiKey, rpcUrl, blockEngineUrl, authKeypair, [payerKeypair.publicKey.toBase58()]);
   const stack = new TransactionStack(rpcUrl, blockEngineUrl, authKeypair, payerKeypair);
   
   const agent = new AIAgent({
@@ -52,7 +52,11 @@ async function main() {
   const tracker = new LifecycleTracker("./logs", network);
 
   // Monitor slots for confirmations and finalizations
+  let latestGeyserSlot = 0;
   observer.on("slot", (slotEvent: any) => {
+    if (slotEvent.slot > latestGeyserSlot) {
+      latestGeyserSlot = slotEvent.slot;
+    }
     // status: 1 = SLOT_CONFIRMED, 2 = SLOT_FINALIZED
     if (slotEvent.status === 1) {
       tracker.updateStageBySlot(slotEvent.slot, "confirmed_at");
@@ -64,11 +68,14 @@ async function main() {
   await observer.start();
 
   const runCycle = async (iteration: number, injectFault = false) => {
-    let currentSlot = 0;
+    let currentSlot = latestGeyserSlot > 0 ? latestGeyserSlot : 429000000;
     try { currentSlot = await connection.getSlot("processed"); } catch(e) {}
 
     try {
       console.log(`\n[Cycle ${iteration}/10] Starting AI Decision Pipeline...`);
+      
+      const tipAccounts = await stack.getTipAccounts();
+      const selectedTipAccount = tipAccounts[Math.floor(Math.random() * tipAccounts.length)];
 
       // 1. Dynamic Jito leader scheduling check (real schedule)
       const upcoming = await observer.isJitoLeaderUpcoming();
@@ -91,7 +98,7 @@ async function main() {
 
       // 3. Initial bundle construction
       let currentTip = tipDecision.lamports;
-      const buildResult = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+      const buildResult = await stack.buildBundle([ix], currentTip, selectedTipAccount);
       
       let txSignature = buildResult.signature;
       let currentBuild = buildResult;
@@ -151,7 +158,7 @@ async function main() {
             currentTip = Math.floor(currentTip * recovery.newTipMultiplier);
             console.log(`[AI Recovery] Refreshing blockhash and raising tip to ${currentTip} lamports...`);
             
-            const freshBuild = await stack.buildBundle([ix], currentTip, new PublicKey("Cw8CFyM9FkoMi7K7Crf6HNQqf4uEMzpKw6QNghXLvLkY"));
+            const freshBuild = await stack.buildBundle([ix], currentTip, selectedTipAccount);
             txSignature = freshBuild.signature;
             currentBuild = freshBuild;
             attempt++;

@@ -25,7 +25,7 @@ async function main() {
   
   const setupMode = await inquirer.prompt([
     {
-      type: "list",
+      type: "select",
       name: "mode",
       message: "Infrastructure Mode:",
       choices: [
@@ -45,7 +45,7 @@ async function main() {
 
   const commonAnswers = await inquirer.prompt([
     {
-      type: "list",
+      type: "select",
       name: "network",
       message: "Target Solana Network:",
       choices: ["testnet", "mainnet-beta", "devnet"],
@@ -124,7 +124,7 @@ async function main() {
 
   const aiType = await inquirer.prompt([
     {
-      type: "list",
+      type: "select",
       name: "provider",
       message: "Select your Primary AI Provider:",
       choices: aiChoices,
